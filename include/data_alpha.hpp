@@ -3,10 +3,12 @@
 
 /////////////////////////////////////////////////////////ENGLISH
 #define ENGLISH_ALPHABET_LEN 26
+
 static char ENGLISH_ALPHABET[ENGLISH_ALPHABET_LEN] =
 { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
   'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
   'u', 'v', 'w', 'x', 'y', 'z' };
+
 static float ENGLISH_LETTER_FREQUENCIES[ENGLISH_ALPHABET_LEN] =
 {   8.55,  //A
 	1.60,  //B

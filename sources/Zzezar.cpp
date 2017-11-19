@@ -6,14 +6,14 @@ Zzezar::Zzezar(char letter_first)
 	key_(0),
 	letter_first_(letter_first),
 	frequency_table_(nullptr),
-	aplphabet_(nullptr){
+	alphabet_(nullptr){
 
 	switch (letter_first_) {
 	case'a':
 		//warning with locale
 		alphabet_len_ = ENGLISH_ALPHABET_LEN;
 		frequency_table_ = ENGLISH_LETTER_FREQUENCIES;
-		aplphabet_ = ENGLISH_ALPHABET;
+		alphabet_ = ENGLISH_ALPHABET;
 		break;
 	default:
 		//err
@@ -22,7 +22,7 @@ Zzezar::Zzezar(char letter_first)
 
 }
 
-void Zzezar::encrypt(std::string key) {
+void Zzezar::encrypt(const std::string& key) {
 
 	if (!prepare_to_modify(key)) {
 		return;
@@ -30,7 +30,7 @@ void Zzezar::encrypt(std::string key) {
 	encr();
 }
 
-void Zzezar::decrypt(std::string key) {
+void Zzezar::decrypt(const std::string& key) {
 
 	if (!prepare_to_modify(key)) {
 		return;
@@ -68,13 +68,12 @@ void Zzezar::crack() {
 
 	decrypt(std::to_string(max_probabbility_key));
 	delete[] letters_count;
-	modified_ = true;
 }
 
 
 ///private
 
-bool Zzezar::prepare_to_modify(std::string & key) {
+bool Zzezar::prepare_to_modify(const std::string & key) {
 
 	if (text_source_.length() == 0) {
 		return false;
@@ -107,7 +106,7 @@ bool Zzezar::prepare_to_modify(std::string & key) {
 bool Zzezar::from_this_alphabet(char letter) {
 
 	for (std::size_t i = 0; i < alphabet_len_; ++i) {
-		if (letter == aplphabet_[i]) {
+		if (letter == alphabet_[i]) {
 			return true;
 		}
 	}
@@ -126,8 +125,6 @@ void Zzezar::encr() {
 			text_modified_ += letter_modified;
 		}
 	}
-
-	modified_ = true;
 }
 
 void Zzezar::decr() {
@@ -145,6 +142,4 @@ void Zzezar::decr() {
 			text_modified_ += letter_modified;
 		}
 	}
-
-	modified_ = true;
 }

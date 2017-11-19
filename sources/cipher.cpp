@@ -2,7 +2,6 @@
 
 cipher::cipher() {
 
-	modified_ = false;
 	text_source_ = "";
 	text_modified_ = "";
 }
@@ -22,10 +21,10 @@ void cipher::text_source_in(std::istream & in) {
 			break;
 		}
 	} while (true);
-	modified_ = false;
+	text_modified_ = "";
 }
 
-void cipher::text_modified_out(std::ostream & out) {
+void cipher::text_modified_out(std::ostream & out) const {
 
 	out << text_modified_;
 }
@@ -45,35 +44,31 @@ void cipher::text_source_in(std::ifstream & in) {
 			break;
 		}
 	} while (true);
-	modified_ = false;
+	text_modified_ = "";
 }
 
-void cipher::text_modified_out(std::ofstream & out) {
+void cipher::text_modified_out(std::ofstream & out) const {
 
 	out << text_modified_;
 }
 
-
 void cipher::set_text_source(std::string const & text_source) {
 
 	text_source_ = text_source;
-	modified_ = false;
+	text_modified_ = "";
 }
 
-std::string  cipher::get_text_source() const {
+std::string cipher::get_text_source() const {
 
 	return text_source_;
 }
 
-std::string  cipher::get_text_modified() const {
+std::string cipher::get_text_modified() const {
 
-	if (modified_) {
-		return text_modified_;
-	}
-	return "";
+	return text_modified_;
 }
 
-bool cipher::is_modified() {
+bool cipher::is_modified() const {
 
-	return modified_;
+	return text_modified_.length() > 0;
 }
