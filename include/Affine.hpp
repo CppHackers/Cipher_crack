@@ -25,7 +25,7 @@ private:
     std::size_t alphabet_len_;
     Key key_;
     std::string decrypt(const Key& key) const;
-    Key parse_key(const std::string& key);
+    Key parse_key(const std::string& key) noexcept(false);
     void change_text_source();
     bool from_this_alphabet(char letter) const;
     double count_coefficient(const std::string& text) const;

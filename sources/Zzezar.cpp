@@ -25,7 +25,7 @@ Zzezar::Zzezar(char letter_first)
 void Zzezar::encrypt(const std::string& key) {
 
 	if (!prepare_to_modify(key)) {
-		return;
+		throw std::invalid_argument("Invalid key");
 	}
 	encr();
 }
@@ -33,7 +33,7 @@ void Zzezar::encrypt(const std::string& key) {
 void Zzezar::decrypt(const std::string& key) {
 
 	if (!prepare_to_modify(key)) {
-		return;
+		throw std::invalid_argument("Invalid key");
 	}
 	decr();
 }

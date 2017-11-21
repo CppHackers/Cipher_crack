@@ -13,7 +13,7 @@ Affine::Affine() : cipher(),
                    key_()
 {}
 
-void Affine::encrypt(const std::string& key) try // key = "a,b"
+void Affine::encrypt(const std::string& key) // key = "a,b"
 {
     key_ = parse_key(key);
     change_text_source();
@@ -21,20 +21,12 @@ void Affine::encrypt(const std::string& key) try // key = "a,b"
     for (char c : text_source_)
         text_modified_+= static_cast<char>((key_.a * (c - alphabet_[0]) + key_.b) % alphabet_len_ + alphabet_[0]);
 }
-catch(const std::exception& ex)
-{
-    std::cout << ex.what();
-}
 
-void Affine::decrypt(const std::string& key) try
+void Affine::decrypt(const std::string& key)
 {
     key_ = parse_key(key);
     change_text_source();
     text_modified_ = decrypt(key_);
-}
-catch(const std::exception& ex)
-{
-    std::cout << ex.what();
 }
 
 void Affine::crack()
