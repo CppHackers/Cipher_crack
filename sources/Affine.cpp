@@ -1,12 +1,12 @@
 #include "Affine.hpp"
-#include "data_alpha.hpp"
+#include "data_alphabet.hpp"
 #include <sstream>
 
 int count_reverse_number(int num, unsigned int mode);
 std::size_t count_remainder(int a, std::size_t m);
 int count_GCD(int firstNumber, int secondNumber);
 
-Affine::Affine() : cipher(),
+Affine::Affine() : Cipher(),
                    frequency_table_(ENGLISH_LETTER_FREQUENCIES),
                    alphabet_(ENGLISH_ALPHABET),
                    alphabet_len_(ENGLISH_ALPHABET_LEN),
@@ -73,7 +73,7 @@ Affine::Key Affine::parse_key(const std::string& key)
         throw std::invalid_argument("Invalid key");
 
     std::istringstream iss(key.substr(0, found));
-    int a;
+    int a = 0;
     if (!(iss >> a))
         throw std::invalid_argument("Invalid key");
 
@@ -81,7 +81,7 @@ Affine::Key Affine::parse_key(const std::string& key)
         throw std::invalid_argument("Invalid key: a and alphabet length must be comprime integers");
 
     iss =  std::istringstream(key.substr(found + 1, key.length() - found - 1));
-    int b;
+    int b = 0;
     if (!(iss >> b))
         throw std::invalid_argument("Invalid key");
 
@@ -128,22 +128,25 @@ double Affine::count_coefficient(const std::string& text) const
     return res;
 }
 
-void Extended_euclid(int a, int b, int& x, int& y, int& d)
+void extended_euclid(int a, int b, int& x, int& y, int& d)
 {
-    int q, r, x1, x2, y1, y2;
-
     if (b == 0)
     {
-        d = a; x = 1; y = 0;
+        d = a;
+        x = 1;
+        y = 0;
         return;
     }
 
-    x2 = 1; x1 = 0; y2 = 0; y1 = 1;
+    int x2 = 1;
+    int x1 = 0;
+    int y2 = 0;
+    int y1 = 1;
 
     while (b > 0)
     {
-        q = a / b;
-        r = a - q * b;
+        int q = a / b;
+        int r = a - q * b;
         x = x2 - q * x1;
         y = y2 - q * y1;
         a = b;
@@ -154,16 +157,18 @@ void Extended_euclid(int a, int b, int& x, int& y, int& d)
         y1 = y;
     }
 
-    d = a;
     x = x2;
     y = y2;
+    d = a;
 }
 
 int count_reverse_number(int num, unsigned int mode)
 {
-    int d, x, y;
+    int d = 0;
+    int x = 0;
+    int y = 0;
 
-    Extended_euclid(num, mode, x, y, d);
+    extended_euclid(num, mode, x, y, d);
 
     if (d == 1)
         return (x >= 0) ? x : x + mode;

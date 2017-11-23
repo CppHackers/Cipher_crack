@@ -1,8 +1,8 @@
-#include"Zzezar.hpp"
+#include"Caesar.hpp"
 
-Zzezar::Zzezar(char letter_first)
+Caesar::Caesar(char letter_first)
 	:
-	cipher(),
+	Cipher(),
 	key_(0),
 	letter_first_(letter_first),
 	frequency_table_(nullptr),
@@ -22,7 +22,7 @@ Zzezar::Zzezar(char letter_first)
 
 }
 
-void Zzezar::encrypt(const std::string& key) {
+void Caesar::encrypt(const std::string& key) {
 
 	if (!prepare_to_modify(key)) {
 		throw std::invalid_argument("Invalid key");
@@ -30,7 +30,7 @@ void Zzezar::encrypt(const std::string& key) {
 	encr();
 }
 
-void Zzezar::decrypt(const std::string& key) {
+void Caesar::decrypt(const std::string& key) {
 
 	if (!prepare_to_modify(key)) {
 		throw std::invalid_argument("Invalid key");
@@ -38,7 +38,7 @@ void Zzezar::decrypt(const std::string& key) {
 	decr();
 }
 
-void Zzezar::crack() {
+void Caesar::crack() {
 
 	//try to hold topN values of text or change koeffs
 	float max_probability = 0;
@@ -73,7 +73,7 @@ void Zzezar::crack() {
 
 ///private
 
-bool Zzezar::prepare_to_modify(const std::string & key) {
+bool Caesar::prepare_to_modify(const std::string & key) {
 
 	if (text_source_.length() == 0) {
 		return false;
@@ -103,7 +103,7 @@ bool Zzezar::prepare_to_modify(const std::string & key) {
 	return true;
 }
 
-bool Zzezar::from_this_alphabet(char letter) {
+bool Caesar::from_this_alphabet(char letter) {
 
 	for (std::size_t i = 0; i < alphabet_len_; ++i) {
 		if (letter == alphabet_[i]) {
@@ -114,7 +114,7 @@ bool Zzezar::from_this_alphabet(char letter) {
 	return false;
 }
 
-void Zzezar::encr() {
+void Caesar::encr() {
 
 	std::size_t text_source_size = text_source_.length();
 	for (std::size_t i = 0; i < text_source_size; ++i) {
@@ -127,7 +127,7 @@ void Zzezar::encr() {
 	}
 }
 
-void Zzezar::decr() {
+void Caesar::decr() {
 
 	std::size_t text_source_size = text_source_.length();
 	for (std::size_t i = 0; i < text_source_size; ++i) {

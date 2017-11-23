@@ -1,9 +1,9 @@
 #ifndef AFFINE_HPP
 #define AFFINE_HPP
 
-#include "cipher.hpp"
+#include "Cipher.hpp"
 
-class Affine : public cipher
+class Affine : public Cipher
 {
 public:
     Affine();

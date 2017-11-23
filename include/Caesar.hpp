@@ -1,16 +1,16 @@
 #ifndef ZZEZAR_HPP
 #define ZZEZAR_HPP
 
-#include"cipher.hpp"
-#include"data_alpha.hpp"
+#include"Cipher.hpp"
+#include"data_alphabet.hpp"
 #include <sstream>
 
 
-class Zzezar : public cipher {
+class Caesar : public Cipher {
 
 public:
 
-	Zzezar(char letter_first = 'a');
+	Caesar(char letter_first = 'a');
 
 	void encrypt(const std::string& key);
 

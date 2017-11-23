@@ -6,11 +6,11 @@
 #include<string>
 
 
-class cipher {
+class Cipher {
 
 public:
 
-	cipher();
+	Cipher();
 
 	void text_source_in(std::istream & in);
 

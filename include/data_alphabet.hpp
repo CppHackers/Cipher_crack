@@ -1,5 +1,5 @@
-#ifndef DATA_ALPHA
-#define DATA_ALPHA
+#ifndef DATA_ALPHABET
+#define DATA_ALPHABET
 
 /////////////////////////////////////////////////////////ENGLISH
 #define ENGLISH_ALPHABET_LEN 26
@@ -39,5 +39,4 @@ static float ENGLISH_LETTER_FREQUENCIES[ENGLISH_ALPHABET_LEN] =
 };
 /////////////////////////////////////////////////////////ENGLISH
 
-#endif // !DATA_ALPHA
-
+#endif // !DATA_ALPHABET
