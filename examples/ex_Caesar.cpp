@@ -1,11 +1,11 @@
 //example1
 
-#include"Zzezar.hpp"
+#include"Caesar.hpp"
 #include<iostream>
 
 int main() {
 
-	Zzezar z1;
+	Caesar z1;
 	z1.set_text_source("LoGin, AdmiN! password_ !Is! password...");
 	z1.encrypt("5");
 	z1.text_modified_out(std::cout);
@@ -15,7 +15,7 @@ int main() {
 	z1.text_modified_out(std::cout);
 	std::cout << "\n\n";
 
-	Zzezar z2;
+	Caesar z2;
 	std::cout << "Print your text:\n";
 	z2.text_source_in(std::cin);
 	std::cout << "\nYour text_source\n: " << z2.get_text_source() << "\n";

@@ -5,12 +5,15 @@
 #include<fstream>
 #include<string>
 
+#define LOGFILE_NAME  "log_cipher.txt"
+static std::ofstream log_file_(LOGFILE_NAME);
+void log(const std::string & information);
 
-class cipher {
+class Cipher {
 
 public:
 
-	cipher();
+	Cipher();
 
 	void text_source_in(std::istream & in);
 
