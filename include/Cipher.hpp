@@ -37,6 +37,8 @@ public:
 
     bool is_modified() const;
 
+	virtual ~Cipher();
+
 protected:
 
 	std::string text_source_;

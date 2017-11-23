@@ -47,11 +47,17 @@ void Caesar::decrypt(const std::string& key) {
 void Caesar::crack() {
 
 	log("Debug. Caesar::Trying to crack");
+	text_to_lower();
+
+	if (text_source_.length() == 0) {
+		log("Warn. Caesar::text is empty to crack");
+		log("Debug. Caesar::refused to crack");
+		return;
+	}
 	float max_probability = 0;
 	int cur_key = 0;
 	int max_probabbility_key = 0;
 	std::size_t * letters_count = new std::size_t[alphabet_len_];
-	text_to_lower();
 
 	while (cur_key < alphabet_len_) {
 
@@ -89,7 +95,8 @@ void Caesar::text_to_lower() {
 
 	log("Debug. Caesar::doing text comfortable to work with");
 	std::string new_text_source = "";
-	for (std::size_t i = 0; i < text_source_.length(); ++i) {
+	std::size_t text_source_size = text_source_.length();
+	for (std::size_t i = 0; i < text_source_size; ++i) {
 		if (from_this_alphabet(tolower(text_source_[i]))) {
 			new_text_source += tolower(text_source_[i]);
 		} else {
@@ -107,9 +114,8 @@ void Caesar::text_to_lower() {
 bool Caesar::prepare_to_modify(const std::string & key) {
 
 	log("Debug. Caesar::preparing to modify");
-	if (text_source_.length() == 0) {
-		return false;
-	}
+	key_ = 0;
+
 	std::istringstream sstream(key);
 	int new_key = 0;
 	if (!(sstream >> new_key) || (new_key < 0)) {
@@ -163,4 +169,8 @@ void Caesar::decr() {
 		text_modified_ += letter_modified;
 	}
 	log("Debug. Caesar::decrypting done");
+}
+
+Caesar::~Caesar() {
+
 }
