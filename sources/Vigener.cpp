@@ -1,29 +1,32 @@
 #include"Vigener.hpp"
+#include"Caesar.hpp"
 
-Vigener::Vigener(char letter_first)
+Vigener::Vigener(char letter_first) 
 	:
 	Cipher(),
 	key_(""),
 	letter_first_(letter_first),
 	key_len_(0),
+	match_index_(0.0),
 	frequency_table_(nullptr),
 	alphabet_(nullptr) {
 
-	log("Debug. Vigener::Creating Vigener");
-	log("Info.  Vigener::First letter of alphabet: ");
+	log("Debug. Vigener::creating Vigener");
+	log("Info.  Vigener::first letter of alphabet: ");
 	log(std::to_string(letter_first));
 	switch (letter_first_) {
 	case'a':
 		alphabet_len_ = ENGLISH_ALPHABET_LEN;
 		frequency_table_ = ENGLISH_LETTER_FREQUENCIES;
 		alphabet_ = ENGLISH_ALPHABET;
+		match_index_ = ENGLISH_MATCH_INDEX;
 		break;
 	default:
 		log("Fatall. Vigener::has no this alphabet");
 		throw std::invalid_argument("Invalid alphabet");
 		break;
 	}
-	log("Debug. Vigener::Created");
+	log("Debug. Vigener::created");
 
 }
 
@@ -47,7 +50,7 @@ void Vigener::decrypt(const std::string& key) {
 
 void Vigener::crack() {
 
-	log("Debug. Vigener::Trying to crack");
+	log("Debug. Vigener::trying to crack");
 	text_to_lower();
 	if (text_source_.length() == 0) {
 		log("Warn. Vigener::text is empty to crack");
@@ -63,6 +66,11 @@ void Vigener::crack() {
 	
 
 	log("Debug. Vigener::cracking is completed");
+}
+
+std::string Vigener::get_key() const {
+
+	return key_;
 }
 
 void Vigener::text_to_lower() {
@@ -158,42 +166,40 @@ void Vigener::decr() {
 	log("Debug. Vigener::decrypting done");
 }
 
-std::size_t find_key_len() {
+std::size_t Vigener::find_key_len() {
 
-	std::size_t text_len = text_source_.length();
-	std::size_t prob_key_len = 0;
+	log("Debug. Vigener::trying to find key_len");
+	std::size_t text_len = text_source_.length(); // problem if <2
+	std::size_t prob_key_len = 1;
 	std::size_t cur_key_len = 1;
-	std::size_t max_prob_key_len = text_len / 2;
-	double max_match_index = 0;
+	//std::size_t max_key_len = (text_len > 1) ? (text_len / 2) : 1; //!!!
+	std::size_t max_key_len = 10;
+	double max_prob_match_index = 0;
 
 	std::size_t * letters_count = new std::size_t[alphabet_len_];
-	while (cur_key_len <= max_prob_key_len) {
-		std::size_t various_letter_count = 0;
+	while (cur_key_len <= max_key_len) {
 		double cur_match_index = 0;
 		for (std::size_t i = 0; i < alphabet_len_; ++i) {
 			letters_count[i] = 0;
 		}
 
+		std::size_t part_len = 0;
 		for (std::size_t i = cur_key_len - 1; i < text_len; i += cur_key_len) {
-			if (letters_count[text_source[i] - letter_first_] == 0) {
-				++various_letter_count;
-			}
-			letters_count[text_source[i] - letter_first_] += 1;
-		}
-
-		if (!(various_letter_count > 1)) {
-			continue;
+			++part_len;
+			letters_count[text_source_[i] - letter_first_] += 1;
 		}
 
 		for (std::size_t i = 0; i < alphabet_len_; ++i) {
 			if (letters_count[i] > 1) {
-				cur_match_index += letters_count[i] * (letters_count[i] - 1) / (various_letter_count * (various_letter_count - 1));
+				cur_match_index += letters_count[i] * (letters_count[i] - 1) *1.0 / (part_len * (part_len - 1));
 			}
 		}
 
-		if (cur_match_index > max_match_index) {
-			max_match_index = cur_match_index;
-			max_prob_key_len = cur_key_len;
+		double dif_cur = (match_index_ - cur_match_index);
+		double dif_min = (match_index_ - max_prob_match_index);
+		if (dif_cur * dif_cur < dif_min * dif_min) {
+			max_prob_match_index = cur_match_index;
+			prob_key_len = cur_key_len;
 		}
 
 		++cur_key_len;
@@ -204,18 +210,66 @@ std::size_t find_key_len() {
 		//again
 	}
 	delete[] letters_count;
-	return max_prob_key_len;
-	
+	log("Debug. Vigener::completed finding key_len");
+	return prob_key_len;
 }
 
-std::string find_text() {
+std::string Vigener::find_text() {
 
-	//known key_len
+	//known key_len > 0 and text_len > 0
 	//divide text on parts
-	//this parts help to find letters of key with Caesar crack
-	//or can use alphabet_len^key_len
+	//this parts help to find letters of key with Caesar crack - first way
+	//or can use alphabet_len^key_len - second way
 
-	return "";
+	//first way
+	log("Debug. Vigener::trying to find real text");
+	std::string * text_parts = new std::string[key_len_];
+	std::size_t text_len = text_source_.length();
+	for (std::size_t i = 0; i < key_len_; ++i) {
+		text_parts[i] = "";
+	}
+	for (std::size_t i = 0; i < text_len; ++i) {
+		text_parts[i % key_len_] += text_source_[i];
+	}
+
+	Caesar caesar_cracker(letter_first_);
+	
+	for (std::size_t i = 0; i < key_len_; ++i) {
+		caesar_cracker.set_text_source(text_parts[i]);
+		caesar_cracker.crack();
+		char letter_source = text_parts[i][0];
+		text_parts[i] = caesar_cracker.get_text_modified();
+		key_ += find_key_letter(letter_source, text_parts[i][0]);
+	}
+
+	std::string text_modified = "";
+	std::size_t max_text_part_len = text_len / key_len_ + (((text_len % key_len_) != 0) ? 1 : 0);
+	for (std::size_t i = 0; i < max_text_part_len; ++i) {
+		for (std::size_t j = 0; j < key_len_; ++j) {
+			if (text_parts[j].length() < i) {
+				break;
+			}
+			text_modified += text_parts[j][i];
+		}
+	}
+
+	log("Debug. Vigener::completed finding real text");
+	return text_modified;
+}
+
+char Vigener::find_key_letter(char letter_source, char letter_modified) {
+
+	log("Debug. Vigener::trying to find key_letter");
+	
+	int pos = letter_source - letter_modified;
+
+	if (pos < 0) {
+		pos += alphabet_len_;
+	}
+	log("Debug. Vigener::completed finding key_letter");
+
+	return letter_first_ + pos;
+
 }
 
 Vigener::~Vigener() {

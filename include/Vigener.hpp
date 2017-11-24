@@ -18,13 +18,16 @@ public:
 
 	void crack() override;
 
+	std::string get_key() const;
+
 	~Vigener();
 
 private:
 
-	std::string key_;
 	float * frequency_table_;
 	char * alphabet_;
+	std::string key_;
+	double match_index_;
 	std::size_t alphabet_len_;
 	std::size_t key_len_;
 	char letter_first_;
@@ -38,6 +41,12 @@ private:
 	void decr();
 
 	void text_to_lower();
+
+	std::size_t find_key_len();
+
+	std::string find_text();
+
+	char find_key_letter(char letter_source, char letter_modified);
 
 };
 

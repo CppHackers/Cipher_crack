@@ -55,8 +55,8 @@ void Caesar::crack() {
 		return;
 	}
 	float max_probability = 0;
-	int cur_key = 0;
-	int max_probabbility_key = 0;
+	int cur_key = 1;
+	int max_probabbility_key = 1;
 	std::size_t * letters_count = new std::size_t[alphabet_len_];
 
 	while (cur_key < alphabet_len_) {
@@ -73,8 +73,8 @@ void Caesar::crack() {
 			letters_count[text_modified_[i] - letter_first_] += 1;
 		}
 
-		float cur_probability = 0;
-		for (std::size_t i = 0; i < max_letters; ++i) {
+		double cur_probability = 0;
+		for (std::size_t i = 0; i < alphabet_len_; ++i) {
 			cur_probability += ((letters_count[i] * 1.0) / max_letters )  * (frequency_table_[i] / 100);
 		}
 		if (cur_probability > max_probability) {
