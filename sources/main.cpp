@@ -1,5 +1,4 @@
-#include "Caesar.hpp"
-#include "Affine.hpp"
+#include <iostream>
 
 int main(int argc, char* argv[])
 {

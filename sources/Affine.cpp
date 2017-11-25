@@ -99,7 +99,7 @@ void Affine::change_text_source()
     text_source_ = new_text_source;
 }
 
-bool Affine::from_this_alphabet(char letter) const
+bool Affine::from_this_alphabet(char letter) const noexcept
 {
     for (std::size_t i = 0; i < alphabet_len_; ++i)
         if (letter == alphabet_[i])
@@ -122,7 +122,7 @@ double Affine::count_coefficient(const std::string& text) const
 
     double res = 0.0;
     for (std::size_t i = 0; i < alphabet_len_; i++)
-        res += frequency_table_[i] * frequencies[i];
+        res += frequency_table_[i] * frequencies[i] / 100.0;
 
     delete[] frequencies;
     return res;

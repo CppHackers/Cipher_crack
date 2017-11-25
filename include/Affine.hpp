@@ -27,7 +27,7 @@ private:
     std::string decrypt(const Key& key) const;
     Key parse_key(const std::string& key) noexcept(false);
     void change_text_source();
-    bool from_this_alphabet(char letter) const;
+    bool from_this_alphabet(char letter) const noexcept;
     double count_coefficient(const std::string& text) const;
 };
 
