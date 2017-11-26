@@ -44,7 +44,6 @@ int main(int argc, char* argv[])
         std::cout << ex.what() << std::endl;
     }
     ss.set_text_source(ss.get_text_modified());
-    ss.set_bigrams_or_trigrams(true);
     ss.crack();
     ss.text_modified_out(std::cout);
     std::cout << std::endl;

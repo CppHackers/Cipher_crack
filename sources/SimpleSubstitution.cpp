@@ -13,11 +13,10 @@ std::size_t find_first_index(const std::string& str, char value);
 SimpleSubstitution::SimpleSubstitution() : Cipher(),
                                            frequency_table_(ENGLISH_LETTER_FREQUENCIES),
                                            alphabet_(ENGLISH_ALPHABET),
-                                           alphabet_len_(ENGLISH_ALPHABET_LEN),
-                                           with_bigrams_(true)
+                                           alphabet_len_(ENGLISH_ALPHABET_LEN)
 {
-    ngrams_freq_table_ = SimpleSubstitution::str_dbl_map();
-    current_ngrams_freq_table_ = SimpleSubstitution::str_dbl_map();
+    bigrams_freq_table_ = SimpleSubstitution::str_dbl_map();
+    current_bigrams_freq_table_ = SimpleSubstitution::str_dbl_map();
 }
 
 void SimpleSubstitution::encrypt(const std::string& key)
@@ -77,15 +76,14 @@ void SimpleSubstitution::crack()
     // decrypting text_source_ with primary key
     auto text = decr(key);
 
-    // counting ngrams coefficient for text
-    unsigned int n = with_bigrams_ ? 2 : 3;
-    load_ngrams_freq(n);
+    // counting bigrams coefficient for text
+    load_bigrams_freq();
 
-    double ngrams_rating = count_ngrams_coefficient(text, n, ngrams_freq_table_);
-    auto prev_ngrams_rating = ngrams_rating;
+    double bigrams_rating = count_bigrams_coefficient(text, bigrams_freq_table_);
+    auto prev_bigrams_rating = bigrams_rating;
     auto step = 1;
 
-    // trying to find key with the lowest ngrams_rating rearranging 2 letters (using step) in the key
+    // trying to find key with the lowest bigrams_rating rearranging 2 letters (using step) in the key
     while (true)
     {
         auto find_good_key = false;
@@ -100,12 +98,12 @@ void SimpleSubstitution::crack()
             std::swap(key[q], key[p]);
 
             text = decr(key);
-            ngrams_rating = count_ngrams_coefficient(text, n, ngrams_freq_table_);
+            bigrams_rating = count_bigrams_coefficient(text, bigrams_freq_table_);
 
-            if (ngrams_rating < prev_ngrams_rating)
+            if (bigrams_rating < prev_bigrams_rating)
             {
                 find_good_key = true;
-                prev_ngrams_rating = ngrams_rating;
+                prev_bigrams_rating = bigrams_rating;
                 step = 1;
                 break;
             }
@@ -122,11 +120,6 @@ void SimpleSubstitution::crack()
     }
 
     text_modified_ = decr(key);
-}
-
-void SimpleSubstitution::set_bigrams_or_trigrams(bool with_bigrams) noexcept
-{
-    with_bigrams_ = with_bigrams;
 }
 
 bool SimpleSubstitution::check_key(const std::string& key) noexcept
@@ -165,55 +158,46 @@ std::string SimpleSubstitution::decr(const std::string& key) const
     return res;
 }
 
-void SimpleSubstitution::load_ngrams_freq(unsigned int n)
+void SimpleSubstitution::load_bigrams_freq()
 {
-    std::string file_name;
-
-    if (n == 2)
-        file_name = "../sources/english_bigrams.txt";
-    else
-        file_name = "../sources/english_trigrams.txt";
-
-    std::ifstream ifs(file_name);
+    std::ifstream ifs("../sources/english_bigrams.txt");
     std::string str;
 
     while(std::getline(ifs, str))
     {
         double key = 0.0;
-        std::istringstream sstream(str.substr(n + 1, str.length() - n - 1));
+        std::istringstream sstream(str.substr(3, str.length() - 3));
         sstream >> key;
-        ngrams_freq_table_.insert(std::pair<std::string,double>(str.substr(0, n), key));
-        current_ngrams_freq_table_.insert(std::pair<std::string,double>(str.substr(0, n), 0.0));
+        bigrams_freq_table_.insert(std::pair<std::string,double>(str.substr(0, 2), key));
+        current_bigrams_freq_table_.insert(std::pair<std::string,double>(str.substr(0, 2), 0.0));
     }
 
     ifs.close();
 }
 
-double SimpleSubstitution::count_ngrams_coefficient(const std::string& text, unsigned int n, const SimpleSubstitution::str_dbl_map& ngrams_freq_table)
+double SimpleSubstitution::count_bigrams_coefficient(const std::string& text, const SimpleSubstitution::str_dbl_map& bigrams_freq_table)
 {
-    for (std::size_t i = n - 1; i < text.length(); ++i)
+    for (std::size_t i = 1; i < text.length(); ++i)
     {
-        std::string temp;
-        for (int j = n - 1; j >= 0; --j)
-            temp += text[i - j];
-        if (current_ngrams_freq_table_.find(temp) == current_ngrams_freq_table_.end())
-            current_ngrams_freq_table_.insert(std::pair<std::string,double>(temp, 1.0));
+        std::string temp = std::string(1, text[i - 1]) + std::string(1, text[i]);
+        if (current_bigrams_freq_table_.find(temp) == current_bigrams_freq_table_.end())
+            current_bigrams_freq_table_.insert(std::pair<std::string,double>(temp, 1.0));
         else
-            current_ngrams_freq_table_[temp] += 1.0;
+            current_bigrams_freq_table_[temp] += 1.0;
     }
 
-    double ngrams_rating = 0.0;
+    double bigrams_rating = 0.0;
 
-    for (auto& current_ngram_freq : current_ngrams_freq_table_)
+    for (auto& current_bigram_freq : current_bigrams_freq_table_)
     {
-        current_ngram_freq.second = (current_ngram_freq.second / (text.length() - n + 1)) * 100.0;
-        if (ngrams_freq_table.find(current_ngram_freq.first) == ngrams_freq_table.end())
-            ngrams_rating += pow(current_ngram_freq.second, 2.0);
+        current_bigram_freq.second = (current_bigram_freq.second / (text.length() - 1)) * 100.0;
+        if (bigrams_freq_table.find(current_bigram_freq.first) == bigrams_freq_table.end())
+            bigrams_rating += pow(current_bigram_freq.second, 2.0);
         else
-            ngrams_rating += pow(current_ngram_freq.second - ngrams_freq_table.at(current_ngram_freq.first), 2.0);
+            bigrams_rating += pow(current_bigram_freq.second - bigrams_freq_table.at(current_bigram_freq.first), 2.0);
     }
 
-    return ngrams_rating;
+    return bigrams_rating;
 }
 
 template<typename T>
