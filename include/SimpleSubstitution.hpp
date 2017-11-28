@@ -23,12 +23,12 @@ private:
     str_dbl_map bigrams_freq_table_;
     str_dbl_map current_bigrams_freq_table_;
 
-    bool check_key(const std::string& key) noexcept;
-    void change_text_source();
+    bool check_key(const std::string& key) const noexcept;
+    void change_text_source() noexcept;
     bool from_this_alphabet(char letter) const noexcept;
-    double count_bigrams_coefficient(const std::string& text, const SimpleSubstitution::str_dbl_map& bigrams_freq_table);
-    std::string decr(const std::string& key) const;
-    void load_bigrams_freq();
+    double count_bigrams_coefficient(const std::string& text) noexcept;
+    std::string decr(const std::string& key) const noexcept;
+    void load_bigrams_freq() noexcept;
 };
 
 #endif // SIMPLESUBSTITUTION_HPP

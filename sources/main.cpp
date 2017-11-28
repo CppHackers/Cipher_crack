@@ -6,12 +6,13 @@
 #include "Caesar.hpp"
 #include "Affine.hpp"
 #include "SimpleSubstitution.hpp"
+#include "Polybius.hpp"
 
 namespace po = boost::program_options;
 
+bool initialize_cipher(Cipher*& cipher, const po::variables_map& vm);
 void crypt(const po::variables_map& vm, Cipher*& cipher, bool encrypt);
 void crack(const po::variables_map& vm, Cipher*& cipher);
-bool initialize_cipher(Cipher*& cipher, const po::variables_map& vm);
 
 int main(int argc, char* argv[])
 {
@@ -23,21 +24,21 @@ int main(int argc, char* argv[])
             ;
     po::options_description encrypt_desc("Encrypt options");
     encrypt_desc.add_options()
-            ("cipher,c", po::value<std::string>(), "Select cipher: c (Caesar), a (Affine), v (Vigener), s (Simple substitution)")
+            ("cipher,c", po::value<std::string>(), "Select cipher: c (Caesar), a (Affine), v (Vigener), s (Simple substitution), p (Polybius)")
             ("input,i", po::value<std::string>(), "Input .txt file")
             ("key,k", po::value<std::string>(), "Key")
             ("output,o", po::value<std::string>(), "Output .txt file")
             ;
     po::options_description decrypt_desc("Decrypt options");
     decrypt_desc.add_options()
-            ("cipher,c", po::value<std::string>(), "Select cipher: c (Caesar), a (Affine), v (Vigener), s (Simple substitution)")
+            ("cipher,c", po::value<std::string>(), "Select cipher: c (Caesar), a (Affine), v (Vigener), s (Simple substitution), p (Polybius)")
             ("input,i", po::value<std::string>(), "Input .txt file")
             ("key,k", po::value<std::string>(), "Key")
             ("output,o", po::value<std::string>(), "Output .txt file")
             ;
     po::options_description crack_desc("Crack options");
     crack_desc.add_options()
-            ("cipher,c", po::value<std::string>(), "Select cipher: c (Caesar), a (Affine), v (Vigener), s (Simple substitution)")
+            ("cipher,c", po::value<std::string>(), "Select cipher: c (Caesar), a (Affine), v (Vigener), s (Simple substitution), p (Polybius)")
             ("input,i", po::value<std::string>(), "Input .txt file")
             ("output,o", po::value<std::string>(), "Output .txt file")
             ;
@@ -52,10 +53,10 @@ int main(int argc, char* argv[])
         if (task_type == "encrypt")
         {
             desc.add(encrypt_desc);
-            po::store(po::parse_command_line(argc,argv,desc), vm);
+            po::store(po::parse_command_line(argc, argv, desc), vm);
             if (!initialize_cipher(cipher, vm))
             {
-                std::cout << "Wrong cipher name.\n";
+                std::cout << "\nCipher name is incorrect.\n\n";
                 return 0;
             }
             crypt(vm, cipher, true);
@@ -63,10 +64,10 @@ int main(int argc, char* argv[])
         else if(task_type == "decrypt")
         {
             desc.add(decrypt_desc);
-            po::store(po::parse_command_line(argc,argv,desc), vm);
+            po::store(po::parse_command_line(argc, argv, desc), vm);
             if (!initialize_cipher(cipher, vm))
             {
-                std::cout << "Wrong cipher name.\n";
+                std::cout << "\nCipher name is incorrect.\n\n";
                 return 0;
             }
             crypt(vm, cipher, false);
@@ -74,10 +75,10 @@ int main(int argc, char* argv[])
         else if(task_type == "crack")
         {
             desc.add(crack_desc);
-            po::store(po::parse_command_line(argc,argv,desc), vm);
+            po::store(po::parse_command_line(argc, argv, desc), vm);
             if (!initialize_cipher(cipher, vm))
             {
-                std::cout << "Wrong cipher name.\n";
+                std::cout << "\nCipher name is incorrect.\n\n";
                 return 0;
             }
             crack(vm, cipher);
@@ -94,95 +95,6 @@ int main(int argc, char* argv[])
     }
 
     return 0;
-}
-
-void crypt(const po::variables_map& vm, Cipher*& cipher, bool encrypt)
-{
-    std::string input_path; // input path to a file with a text to encrypt (decrypt)
-    std::string key; // a key for encrypting (decrypting)
-    std::string output_path; // output path to a file with encrypted (decrypted) text
-    if (vm.count("input"))
-        input_path = vm["input"].as<std::string>();
-    if(vm.count("key"))
-        key = vm["key"].as<std::string>();
-    if(vm.count("output"))
-        output_path = vm["output"].as<std::string>();
-
-    std::ifstream ifs(input_path);
-    if (!ifs)
-    {
-        std::cout << "Error trying open input file\n";
-        ifs.close();
-        return;
-    }
-    cipher->text_source_in(ifs);
-    ifs.close();
-
-    try
-    {
-        if (encrypt) cipher->encrypt(key);
-        else cipher->decrypt(key);
-    }
-    catch(const std::invalid_argument& ex)
-    {
-        std::cout << ex.what() << std::endl;
-        return;
-    }
-
-    std::ofstream ofs(output_path);
-    if (!ofs)
-    {
-        std::cout << "Error trying open output file\n";
-        ofs.close();
-        return;
-    }
-    cipher->text_modified_out(ofs);
-    ofs.close();
-
-    if (encrypt) std::cout<<"encrypt: "<<input_path<<" "<<key<<" "<<output_path<<std::endl;
-    else std::cout<<"decrypt: "<<input_path<<" "<<key<<" "<<output_path<<std::endl;
-}
-
-void crack(const po::variables_map& vm, Cipher*& cipher)
-{
-    std::string input_path; // input path to a file with a text to crack
-    std::string output_path; // output path to a file with cracked text
-    if (vm.count("input"))
-        input_path = vm["input"].as<std::string>();
-    if(vm.count("output"))
-        output_path = vm["output"].as<std::string>();
-
-    std::ifstream ifs(input_path);
-    if (!ifs)
-    {
-        std::cout << "Error trying open input file\n";
-        ifs.close();
-        return;
-    }
-    cipher->text_source_in(ifs);
-    ifs.close();
-
-    try
-    {
-        cipher->crack();
-    }
-    catch(const std::invalid_argument& ex)
-    {
-        std::cout << ex.what() << std::endl;
-        return;
-    }
-
-    std::ofstream ofs(output_path);
-    if (!ofs)
-    {
-        std::cout << "Error trying open output file\n";
-        ofs.close();
-        return;
-    }
-    cipher->text_modified_out(ofs);
-    ofs.close();
-
-    std::cout<<"crack: "<<input_path<<" "<<output_path<<std::endl;
 }
 
 bool initialize_cipher(Cipher*& cipher, const po::variables_map& vm)
@@ -210,7 +122,103 @@ bool initialize_cipher(Cipher*& cipher, const po::variables_map& vm)
             cipher = new SimpleSubstitution;
             return true;
         }
+        else if (cipher_type == "p" || cipher_type == "Polybius" || cipher_type == "polybius" || cipher_type == "P")
+        {
+            cipher = new Polybius;
+            return true;
+        }
     }
 
     return false;
+}
+
+void crypt(const po::variables_map& vm, Cipher*& cipher, bool encrypt)
+{
+    std::string input_path; // input path to a file with a text to encrypt (decrypt)
+    std::string key; // a key for encrypting (decrypting)
+    std::string output_path; // output path to a file with encrypted (decrypted) text
+    if (vm.count("input"))
+        input_path = vm["input"].as<std::string>();
+    if(vm.count("key"))
+        key = vm["key"].as<std::string>();
+    if(vm.count("output"))
+        output_path = vm["output"].as<std::string>();
+
+    std::ifstream ifs(input_path);
+    if (!ifs)
+    {
+        std::cout << "\nError trying open input file\n\n";
+        ifs.close();
+        return;
+    }
+    cipher->text_source_in(ifs);
+    ifs.close();
+
+    try
+    {
+        if (encrypt) cipher->encrypt(key);
+        else cipher->decrypt(key);
+    }
+    catch(const std::invalid_argument& ex)
+    {
+        std::cout << ex.what() << std::endl;
+        return;
+    }
+
+    std::ofstream ofs(output_path);
+    if (!ofs)
+    {
+        std::cout << "\nError trying open output file\n\n";
+        ofs.close();
+        return;
+    }
+    cipher->text_modified_out(ofs);
+    ofs.close();
+
+    if (encrypt)
+        std::cout << "\nEncryption done.\nInput file: " << input_path << "\nKey: " << key << "\nOutput file: " << output_path << "\n\n";
+    else
+        std::cout << "\nDecryption done.\nInput file: " << input_path << "\nKey: " << key << "\nOutput file: " << output_path << "\n\n";
+}
+
+void crack(const po::variables_map& vm, Cipher*& cipher)
+{
+    std::string input_path; // input path to a file with a text to crack
+    std::string output_path; // output path to a file with cracked text
+    if (vm.count("input"))
+        input_path = vm["input"].as<std::string>();
+    if(vm.count("output"))
+        output_path = vm["output"].as<std::string>();
+
+    std::ifstream ifs(input_path);
+    if (!ifs)
+    {
+        std::cout << "\nError trying open input file\n\n";
+        ifs.close();
+        return;
+    }
+    cipher->text_source_in(ifs);
+    ifs.close();
+
+    try
+    {
+        cipher->crack();
+    }
+    catch(const std::invalid_argument& ex)
+    {
+        std::cout << ex.what() << std::endl;
+        return;
+    }
+
+    std::ofstream ofs(output_path);
+    if (!ofs)
+    {
+        std::cout << "\nError trying open output file\n\n";
+        ofs.close();
+        return;
+    }
+    cipher->text_modified_out(ofs);
+    ofs.close();
+
+    std::cout << "\nCracking done.\nInput file: " << input_path << "\nOutput file: " << output_path << "\n\n";
 }

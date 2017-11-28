@@ -60,7 +60,7 @@ void Polybius::decrypt(const std::string& key)
     key_ = parse_key(key);
     change_text_source();
     auto length = text_source_.length() / 2;
-    for (auto i = 0; i < length - 1; ++i)
+    for (auto i = 0; i < length; ++i)
         text_modified_ += key_.matrix[text_source_[2 * i] - alphabet_[0]][text_source_[2 * i + 1] - alphabet_[0]];
 }
 
@@ -70,7 +70,7 @@ void Polybius::crack() // for english alphabet
     std::vector<double> current_freqs_table(alphabet_len_, 0.0); // letters' frequencies of cipher text (0 - aa, 1 - ab, 2 - ac...)
 
     auto l = text_source_.length() / 2;
-    for (auto i = 0; i < l - 1; ++i)
+    for (auto i = 0; i < l; ++i)
     {
         auto index = (text_source_[2 * i] - alphabet_[0]) * 5 + text_source_[2 * i + 1] - alphabet_[0];
         current_freqs_table[index] += 1.0;
@@ -95,8 +95,8 @@ void Polybius::crack() // for english alphabet
     // forming the most suitable primary key (based on letters' frequencies of cipher text)
     for (auto i = 0; i < alphabet_len_; ++i)
     {
-        auto symb = alphabet_[std::find(current_freqs_table.begin(), current_freqs_table.end(), current_freqs_sorted[i]) - current_freqs_table.begin()];
-        key[std::find(frequency_table_.begin(), frequency_table_.end(), freq_table_sorted[i]) - frequency_table_.begin()] = symb;
+        auto symb = alphabet_[std::find(frequency_table_.begin(), frequency_table_.end(), freq_table_sorted[i]) - frequency_table_.begin()];
+        key[std::find(current_freqs_table.begin(), current_freqs_table.end(), current_freqs_sorted[i]) - current_freqs_table.begin()] = symb;
     }
 
     // decrypting text_source_ with primary key
@@ -208,7 +208,7 @@ std::string Polybius::decr(const std::string& key) const noexcept
     std::string res;
     Key k = parse_key(key);
     auto length = text_source_.length() / 2;
-    for (auto i = 0; i < length - 1; ++i)
+    for (auto i = 0; i < length; ++i)
         res += k.matrix[text_source_[2 * i] - alphabet_[0]][text_source_[2 * i + 1] - alphabet_[0]];
     return res;
 }
