@@ -7,6 +7,7 @@
 #include "Affine.hpp"
 #include "SimpleSubstitution.hpp"
 #include "Polybius.hpp"
+#include "Vigener.hpp"
 
 namespace po = boost::program_options;
 
@@ -114,7 +115,7 @@ bool initialize_cipher(Cipher*& cipher, const po::variables_map& vm)
         }
         else if (cipher_type == "v" || cipher_type == "Vigener" || cipher_type == "vigener" || cipher_type == "V")
         {
-            //cipher = new Vigener;
+            cipher = new Vigener;
             return true;
         }
         else if (cipher_type == "s" || cipher_type == "Simple substitution" || cipher_type == "simple substitution" || cipher_type == "S")

@@ -83,3 +83,7 @@ void log(const std::string & information) {
 
 	log_file_ << information << '\n';
 }
+
+Cipher::~Cipher() {
+
+}

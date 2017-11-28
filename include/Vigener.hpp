@@ -1,16 +1,16 @@
-#ifndef CAESAR_HPP
-#define CAESAR_HPP
+#ifndef VIGENER_HPP
+#define VEGENER_HPP
 
 #include"Cipher.hpp"
 #include"data_alphabet.hpp"
 #include <sstream>
 
 
-class Caesar : public Cipher {
+class Vigener : public Cipher {
 
 public:
 
-	Caesar(char letter_first = 'a');
+	Vigener(char letter_first = 'a');
 
 	void encrypt(const std::string & key) override;
 
@@ -18,14 +18,18 @@ public:
 
 	void crack() override;
 
-	~Caesar();
+	std::string get_key() const;
+
+	~Vigener();
 
 private:
 
 	float * frequency_table_;
 	char * alphabet_;
+	std::string key_;
+	double match_index_;
 	std::size_t alphabet_len_;
-	int key_;
+	std::size_t key_len_;
 	char letter_first_;
 
 	bool prepare_to_modify(const std::string & key);
@@ -38,6 +42,13 @@ private:
 
 	void text_to_lower();
 
+	std::size_t find_key_len();
+
+	std::string find_text();
+
+	char find_key_letter(char letter_source, char letter_modified);
+
 };
 
-#endif // !CAESAR_HPP
+#endif // !VIGENER_HPP
+

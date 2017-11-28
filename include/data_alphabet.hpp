@@ -4,6 +4,8 @@
 /////////////////////////////////////////////////////////ENGLISH
 #define ENGLISH_ALPHABET_LEN 26
 
+#define ENGLISH_MATCH_INDEX 0.0667
+
 static char ENGLISH_ALPHABET[ENGLISH_ALPHABET_LEN] =
 { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
   'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
