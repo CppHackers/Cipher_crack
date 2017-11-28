@@ -52,11 +52,12 @@ void Caesar::crack() {
 	if (text_source_.length() == 0) {
 		log("Warn. Caesar::text is empty to crack");
 		log("Debug. Caesar::refused to crack");
+		throw(std::logic_error("Text is too short"));
 		return;
 	}
 	float max_probability = 0;
 	int cur_key = 1;
-	int max_probabbility_key = 1;
+	int max_probability_key = 1;
 	std::size_t * letters_count = new std::size_t[alphabet_len_];
 
 	while (cur_key < alphabet_len_) {
@@ -79,12 +80,12 @@ void Caesar::crack() {
 		}
 		if (cur_probability > max_probability) {
 			max_probability = cur_probability;
-			max_probabbility_key = cur_key;
+			max_probability_key = cur_key;
 		}
 		++cur_key;
 	}
 
-	key_ = max_probabbility_key;
+	key_ = max_probability_key;
 	text_modified_ = "";
 	decr();
 	delete[] letters_count;

@@ -1,6 +1,8 @@
 #include"Vigener.hpp"
 #include"Caesar.hpp"
 
+#define MAX_KEY_LEN 15
+
 Vigener::Vigener(char letter_first) 
 	:
 	Cipher(),
@@ -52,9 +54,10 @@ void Vigener::crack() {
 
 	log("Debug. Vigener::trying to crack");
 	text_to_lower();
-	if (text_source_.length() == 0) {
-		log("Warn. Vigener::text is empty to crack");
+	if (text_source_.length() < 2) {
+		log("Error. Vigener::text is too short to crack");
 		log("Debug. Vigener::refused to crack");
+		throw(std::logic_error("Text is too small to crack"));
 		return;
 	}
 	key_len_ = 0;
@@ -121,6 +124,12 @@ bool Vigener::prepare_to_modify(const std::string & key) {
 
 	text_to_lower();
 
+	if (text_source_.length() < 2) {
+
+		log("Error. Vigener::text is too short to crack");
+		throw(std::logic_error("Text is too small"));
+	}
+
 	key_len_ = key_len;
 	key_ = new_key;
 	text_modified_ = "";
@@ -169,11 +178,10 @@ void Vigener::decr() {
 std::size_t Vigener::find_key_len() {
 
 	log("Debug. Vigener::trying to find key_len");
-	std::size_t text_len = text_source_.length(); // problem if <2
+	std::size_t text_len = text_source_.length();
 	std::size_t prob_key_len = 1;
 	std::size_t cur_key_len = 1;
-	//std::size_t max_key_len = (text_len > 1) ? (text_len / 2) : 1; //!!!
-	std::size_t max_key_len = 10;
+	std::size_t max_key_len = MAX_KEY_LEN;
 	double max_prob_match_index = 0;
 
 	std::size_t * letters_count = new std::size_t[alphabet_len_];
@@ -203,11 +211,6 @@ std::size_t Vigener::find_key_len() {
 		}
 
 		++cur_key_len;
-		//divide text on parts
-		//parts with every cur_key_len of this text
-		//various letters of this text_parts, count all and count of every
-		//sum indexes
-		//again
 	}
 	delete[] letters_count;
 	log("Debug. Vigener::completed finding key_len");
@@ -216,12 +219,6 @@ std::size_t Vigener::find_key_len() {
 
 std::string Vigener::find_text() {
 
-	//known key_len > 0 and text_len > 0
-	//divide text on parts
-	//this parts help to find letters of key with Caesar crack - first way
-	//or can use alphabet_len^key_len - second way
-
-	//first way
 	log("Debug. Vigener::trying to find real text");
 	std::string * text_parts = new std::string[key_len_];
 	std::size_t text_len = text_source_.length();
@@ -253,6 +250,7 @@ std::string Vigener::find_text() {
 		}
 	}
 
+	delete[] text_parts;
 	log("Debug. Vigener::completed finding real text");
 	return text_modified;
 }
