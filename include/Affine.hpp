@@ -6,7 +6,7 @@
 class Affine : public Cipher
 {
 public:
-    Affine();
+    Affine(unsigned log_level = Log::Debug );
 
     void encrypt(const std::string& key) override;
     void decrypt(const std::string& key) override;

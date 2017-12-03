@@ -122,13 +122,17 @@ bool Caesar::prepare_to_modify(const std::string & key) {
 
 	std::istringstream sstream(key);
 	int new_key = 0;
-	if (!(sstream >> new_key) || (new_key < 0)) {
+	if (!(sstream >> new_key)) {
 		return false;
 	}
 
 	text_to_lower();
 
-	key_ = new_key;
+	while(new_key < 0) {
+		new_key += alphabet_len_;
+	}
+
+	key_ = new_key % alphabet_len_;
 	text_modified_ = "";
 	Log::Logger()->log(Log::Debug, "Caesar::is ready to be modified");
 
