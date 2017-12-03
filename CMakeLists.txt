@@ -6,6 +6,8 @@ set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 
+set (BOOST_ROOT "/opt/boost/boost_1_57_0")
+
 find_package(Boost COMPONENTS program_options REQUIRED)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
