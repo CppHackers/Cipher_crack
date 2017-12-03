@@ -2,31 +2,33 @@
 
 [![Build Status](https://travis-ci.org/CppHackers/Cipher_crack.svg?branch=master)](https://travis-ci.org/CppHackers/Cipher_crack)
 
-Программа, позволяющая зашифровывать, расшифровывать и взламывать тексты методами криптоанализа.
+## What's the Cipher_crack
 
-## Шифры, с которыми может работать программа:
+It's a program that can encrypt, decrypt and crack texts using cryptanalysis.
 
-1) Шифр Цезаря
+### Ciphers used:
 
-2) Афинный шифр
+1) Caesar cipher
 
-3) Шифр простой замены
+2) Affine cipher
 
-4) Шифр Полибия
+3) Simple substitution cipher
 
-5) Шифр Виженера
+4) Polybius cipher
 
-## Методы криптоанализа, использующиеся в программе:
+5) Vigenere cipher
 
-1) Брутфорс
+### Сryptanalysis methods used:
 
-2) Частотный анализ букв
+1) Brute force
 
-3) Частотный анализ n-грамм
+2) Frequency analysis of letters
 
-4) Поиск восхождением к вершине
+3) Frequency analysis of n-grams
 
-5) Учет индекса совпадений
+4) 'Hill-climbing' algorithm
+
+5) Accounting for the index of coincidence
 
 ## Build
 
