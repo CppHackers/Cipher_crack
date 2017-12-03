@@ -43,14 +43,14 @@ $ cmake .. && make
 $ ./Tests
 ```
 
-## Использование
+## How to use it
 
 ```ShellSession
-$ ./WordsLadder [general options] [cipher options] [encrypt/decrypt/crack options]
+$ ./Cipher_crack [general options] [cipher options] [encrypt/decrypt/crack options]
 ```
 
-Для получения более детальной информации воспользуйтесь следующей командой:
+## More
 
 ```ShellSession
-$ ./WordsLadder -h
+$ ./Cipher_crack -h
 ```
