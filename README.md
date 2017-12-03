@@ -2,34 +2,53 @@
 
 [![Build Status](https://travis-ci.org/CppHackers/Cipher_crack.svg?branch=master)](https://travis-ci.org/CppHackers/Cipher_crack)
 
-## Исследование шифров методами криптоанализа
+Программа, позволяющая зашифровывать, расшифровывать и взламывать тексты методами криптоанализа.
 
-## Классические​​ шифры:
+## Шифры, с которыми может работать программа:
 
-а) Шифр​​ Цезаря
+1) Шифр Цезаря
 
-б) Афинный​​ шифр
+2) Афинный шифр
 
-в) Шифр​​ простой​​ замены
+3) Шифр простой замены
 
-г) Шифр​​ Полибия
+4) Шифр Полибия
 
-д) Шифр​​ вертикальной​​ перестановки
+5) Шифр Виженера
 
-е) Шифр​​ Плейфера
+## Методы криптоанализа, использующиеся в программе:
 
-ё) Шифр​​ Виженера
+1) Брутфорс
 
-## Методы криптоанализа
+2) Частотный анализ букв
 
-а) брутфорс​​
+3) Частотный анализ n-грамм
 
-б) частотный​​ анализ​​ букв​​
+4) Поиск восхождением к вершине
 
-в) частотный​​ анализ​​ n-грамм​​
+## Build
 
-г) поиск​​ восхождением​​ к​​ вершине​​
+```ShellSession
+$ git clone https://github.com/CppHackers/Cipher_crack
+$ cd Cipher_crack
+$ mkdir build && cd build
+$ cmake .. && make
+```
 
-д) иммитация​​ отжига​​
+## Running tests
 
-е) и​​ др..
+```ShellSession
+$ ./Tests
+```
+
+## Usage
+
+```ShellSession
+$ ./WordsLadder [general options] [cipher options] [encrypt/decrypt/crack options]
+```
+
+To see more detailed information, run:
+
+```ShellSession
+$ ./WordsLadder -h
+```
