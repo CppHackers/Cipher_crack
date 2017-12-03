@@ -1,10 +1,9 @@
 #include"Vigener.hpp"
 #include"Caesar.hpp"
 
-
-Vigener::Vigener(char letter_first, std::size_t max_key_len, bool need_spaces) 
+Vigener::Vigener(char letter_first, std::size_t max_key_len, bool need_spaces, unsigned log_level) 
 	:
-	Cipher(),
+	Cipher(log_level),
 	key_(""),
 	letter_first_(letter_first),
 	key_len_(0),
@@ -14,9 +13,9 @@ Vigener::Vigener(char letter_first, std::size_t max_key_len, bool need_spaces)
 	max_key_len_(max_key_len),
 	need_spaces_(need_spaces){
 
-	log("Debug. Vigener::creating Vigener");
-	log("Info.  Vigener::first letter of alphabet: ");
-	log(std::to_string(letter_first));
+	Log::Logger()->log(Log::Debug, "Vigener::creating Vigener");
+	Log::Logger()->log(Log::Info, " Vigener::first letter of alphabet: ");
+	Log::Logger()->log(Log::Info, std::to_string(letter_first));
 	switch (letter_first_) {
 	case'a':
 		alphabet_len_ = ENGLISH_ALPHABET_LEN;
@@ -25,11 +24,11 @@ Vigener::Vigener(char letter_first, std::size_t max_key_len, bool need_spaces)
 		match_index_ = ENGLISH_MATCH_INDEX;
 		break;
 	default:
-		log("Fatall. Vigener::has no this alphabet");
+		Log::Logger()->log(Log::Error, "Fatall. Vigener::has no this alphabet");
 		throw std::invalid_argument("Invalid alphabet");
 		break;
 	}
-	log("Debug. Vigener::created");
+	Log::Logger()->log(Log::Debug, "Vigener::created");
 
 }
 
@@ -40,7 +39,7 @@ void Vigener::change_spaces_mod() {
 
 void Vigener::encrypt(const std::string& key) {
 
-	log("Debug. Vigener::want to encrypt");
+	Log::Logger()->log(Log::Debug, "Vigener::want to encrypt");
 	if (!prepare_to_modify(key)) {
 		throw std::invalid_argument("Invalid key");
 	}
@@ -52,8 +51,11 @@ void Vigener::encrypt(const std::string& key) {
 
 void Vigener::decrypt(const std::string& key) {
 
-	log("Debug. Vigener::want to decrypt");
+	Log::Logger()->log(Log::Debug, "Vigener::want to decrypt");
 	if (!prepare_to_modify(key)) {
+		Log::Logger()->log(Log::Error, "Vigener::bad key");
+		Log::Logger()->log(Log::Info, " Vigener::key is");
+		Log::Logger()->log(Log::Info, key);
 		throw std::invalid_argument("Invalid key");
 	}
 	decr();
@@ -64,7 +66,7 @@ void Vigener::decrypt(const std::string& key) {
 
 void Vigener::crack() {
 
-	log("Debug. Vigener::trying to crack");
+	Log::Logger()->log(Log::Debug, "Vigener::trying to crack");
 	key_ = "";
 	key_len_ = 0;
 	text_modified_ = "";
@@ -72,8 +74,8 @@ void Vigener::crack() {
 	text_to_lower();
 
 	if (text_source_.length() < 2) {
-		log("Error. Vigener::text is too short to crack");
-		log("Debug. Vigener::refused to crack");
+		Log::Logger()->log(Log::Error, "Vigener::text is too short to crack");
+		Log::Logger()->log(Log::Debug, "Vigener::refused to crack");
 		throw(std::logic_error("Text is too small to crack"));
 		return;
 	}
@@ -85,7 +87,7 @@ void Vigener::crack() {
 	}
 	
 
-	log("Debug. Vigener::cracking is completed");
+	Log::Logger()->log(Log::Debug, "Vigener::cracking is completed");
 }
 
 std::string Vigener::get_key() const {
@@ -95,7 +97,7 @@ std::string Vigener::get_key() const {
 
 void Vigener::text_to_lower() {
 
-	log("Debug. Vigener::doing text comfortable to work with");
+	Log::Logger()->log(Log::Debug, "Vigener::doing text comfortable to work with");
 	std::string new_text_source = "";
 	std::size_t text_source_size = text_source_.length();
 	for (std::size_t i = 0; i < text_source_size; ++i) {
@@ -105,29 +107,26 @@ void Vigener::text_to_lower() {
 			if (need_spaces_) {
 				spaces_pos_.insert(i);
 			}
-			log("Warn.  Vigener::letter is not from selected alphabet");
-			log("Info.  Vigener::letter is ");
-			log(std::to_string(text_source_[i]));
+			Log::Logger()->log(Log::Warn, " Vigener::letter is not from selected alphabet");
+			Log::Logger()->log(Log::Info, " Vigener::letter is ");
+			Log::Logger()->log(Log::Info, std::to_string(text_source_[i]));
 		}
 	}
 
 	text_source_ = new_text_source;
-	log("Debug. Vigener::done text comfortable");
+	Log::Logger()->log(Log::Debug, "Vigener::done text comfortable");
 
 }
 
 bool Vigener::prepare_to_modify(const std::string & key) {
 
-	log("Debug. Vigener::preparing to modify");
+	Log::Logger()->log(Log::Debug, "Vigener::preparing to modify");
 	key_ = "";
 	key_len_ = 0;
 	spaces_pos_.clear();
 
 	std::size_t key_len = key.length();
 	if (key_len == 0) {
-		log("Error. Vigener::bad key");
-		log("Info.  Vigener::key is");
-		log(key);
 		return false;
 	}
 
@@ -136,9 +135,6 @@ bool Vigener::prepare_to_modify(const std::string & key) {
 		if (from_this_alphabet(tolower(key[i]))) {
 			new_key += tolower(key[i]);
 		} else {
-			log("Error. Vigener::bad key");
-			log("Info.  Vigener::key is");
-			log(key);
 			return false;
 		}
 	}
@@ -146,15 +142,14 @@ bool Vigener::prepare_to_modify(const std::string & key) {
 	text_to_lower();
 
 	if (text_source_.length() < 2) {
-
-		log("Error. Vigener::text is too short to crack");
+		Log::Logger()->log(Log::Error, "Vigener::text is too short to crack");
 		throw(std::logic_error("Text is too small"));
 	}
 
 	key_len_ = key_len;
 	key_ = new_key;
 	text_modified_ = "";
-	log("Debug. Vigener::is ready to be modified");
+	Log::Logger()->log(Log::Debug, "Vigener::is ready to be modified");
 
 	return true;
 }
@@ -172,18 +167,18 @@ bool Vigener::from_this_alphabet(char letter) const {
 
 void Vigener::encr() {
 
-	log("Debug. Vigener::tring to encrypt");
+	Log::Logger()->log(Log::Debug, "Vigener::tring to encrypt");
 	std::size_t text_source_size = text_source_.length();
 	for (std::size_t i = 0; i < text_source_size; ++i) {
 		char letter_modified = (text_source_[i] - letter_first_ + (key_[i % key_len_] - letter_first_)) % (alphabet_len_)+letter_first_;
 		text_modified_ += letter_modified;
 	}
-	log("Debug. Vigener::encrypting done");
+	Log::Logger()->log(Log::Debug, "Vigener::encrypting done");
 }
 
 void Vigener::decr() {
 
-	log("Debug. Vigener::tring to decrypt");
+	Log::Logger()->log(Log::Debug, "Vigener::tring to decrypt");
 	std::size_t text_source_size = text_source_.length();
 	for (std::size_t i = 0; i < text_source_size; ++i) {
 		int pos = (text_source_[i] - letter_first_ - (key_[i % key_len_] - letter_first_));
@@ -193,12 +188,12 @@ void Vigener::decr() {
 		char letter_modified = pos % (alphabet_len_) + letter_first_;
 		text_modified_ += letter_modified;
 	}
-	log("Debug. Vigener::decrypting done");
+	Log::Logger()->log(Log::Debug, "Vigener::decrypting done");
 }
 
 std::size_t Vigener::find_key_len() {
 
-	log("Debug. Vigener::trying to find key_len");
+	Log::Logger()->log(Log::Debug, "Vigener::trying to find key_len");
 	std::size_t text_len = text_source_.length();
 	std::size_t prob_key_len = 1;
 	std::size_t cur_key_len = 1;
@@ -233,13 +228,13 @@ std::size_t Vigener::find_key_len() {
 		++cur_key_len;
 	}
 	delete[] letters_count;
-	log("Debug. Vigener::completed finding key_len");
+	Log::Logger()->log(Log::Debug, "Vigener::completed finding key_len");
 	return prob_key_len;
 }
 
 std::string Vigener::find_text() {
 
-	log("Debug. Vigener::trying to find real text");
+	Log::Logger()->log(Log::Debug, "Vigener::trying to find real text");
 	std::string * text_parts = new std::string[key_len_];
 	std::size_t text_len = text_source_.length();
 	for (std::size_t i = 0; i < key_len_; ++i) {
@@ -271,20 +266,20 @@ std::string Vigener::find_text() {
 	}
 
 	delete[] text_parts;
-	log("Debug. Vigener::completed finding real text");
+	Log::Logger()->log(Log::Debug, "Vigener::completed finding real text");
 	return text_modified;
 }
 
 char Vigener::find_key_letter(char letter_source, char letter_modified) {
 
-	log("Debug. Vigener::trying to find key_letter");
+	Log::Logger()->log(Log::Debug, "Vigener::trying to find key_letter");
 	
 	int pos = letter_source - letter_modified;
 
 	if (pos < 0) {
 		pos += alphabet_len_;
 	}
-	log("Debug. Vigener::completed finding key_letter");
+	Log::Logger()->log(Log::Debug, "Vigener::completed finding key_letter");
 
 	return letter_first_ + pos;
 

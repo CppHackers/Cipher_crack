@@ -4,16 +4,14 @@
 #include<iostream>
 #include<fstream>
 #include<string>
+#include "Log.hpp"
 
-#define LOGFILE_NAME  "log_cipher.txt"
-static std::ofstream log_file_(LOGFILE_NAME);
-void log(const std::string & information);
 
 class Cipher {
 
 public:
 
-	Cipher();
+	Cipher(unsigned log_level = Log::Debug);
 
 	void text_source_in(std::istream & in);
 

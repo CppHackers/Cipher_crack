@@ -12,7 +12,7 @@ class Vigener : public Cipher {
 
 public:
 
-	Vigener(char letter_first = 'a', std::size_t max_key_len = MAX_KEY_LEN, bool need_spaces = true);
+	Vigener(char letter_first = 'a', std::size_t max_key_len = MAX_KEY_LEN, bool need_spaces = false, unsigned log_level = Log::Debug);
 	void encrypt(const std::string & key) override;
 	void decrypt(const std::string & key) override;
 	void crack() override;
