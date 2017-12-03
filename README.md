@@ -26,6 +26,8 @@
 
 4) Поиск восхождением к вершине
 
+5) Учет индекса совпадений
+
 ## Build
 
 ```ShellSession
@@ -41,13 +43,13 @@ $ cmake .. && make
 $ ./Tests
 ```
 
-## Usage
+## Использование
 
 ```ShellSession
 $ ./WordsLadder [general options] [cipher options] [encrypt/decrypt/crack options]
 ```
 
-To see more detailed information, run:
+Для получения более детальной информации воспользуйтесь следующей командой:
 
 ```ShellSession
 $ ./WordsLadder -h
