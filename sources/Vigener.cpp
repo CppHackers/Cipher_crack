@@ -1,9 +1,8 @@
 #include"Vigener.hpp"
 #include"Caesar.hpp"
 
-#define MAX_KEY_LEN 15
 
-Vigener::Vigener(char letter_first) 
+Vigener::Vigener(char letter_first, std::size_t max_key_len, bool need_spaces) 
 	:
 	Cipher(),
 	key_(""),
@@ -11,7 +10,9 @@ Vigener::Vigener(char letter_first)
 	key_len_(0),
 	match_index_(0.0),
 	frequency_table_(nullptr),
-	alphabet_(nullptr) {
+	alphabet_(nullptr),
+	max_key_len_(max_key_len),
+	need_spaces_(need_spaces){
 
 	log("Debug. Vigener::creating Vigener");
 	log("Info.  Vigener::first letter of alphabet: ");
@@ -32,6 +33,11 @@ Vigener::Vigener(char letter_first)
 
 }
 
+void Vigener::change_spaces_mod() {
+
+	need_spaces_ = !need_spaces_;
+}
+
 void Vigener::encrypt(const std::string& key) {
 
 	log("Debug. Vigener::want to encrypt");
@@ -39,6 +45,9 @@ void Vigener::encrypt(const std::string& key) {
 		throw std::invalid_argument("Invalid key");
 	}
 	encr();
+	if (need_spaces_) {
+		spaces_reborn();
+	}
 }
 
 void Vigener::decrypt(const std::string& key) {
@@ -48,24 +57,32 @@ void Vigener::decrypt(const std::string& key) {
 		throw std::invalid_argument("Invalid key");
 	}
 	decr();
+	if (need_spaces_) {
+		spaces_reborn();
+	}
 }
 
 void Vigener::crack() {
 
 	log("Debug. Vigener::trying to crack");
+	key_ = "";
+	key_len_ = 0;
+	text_modified_ = "";
+	spaces_pos_.clear();
 	text_to_lower();
+
 	if (text_source_.length() < 2) {
 		log("Error. Vigener::text is too short to crack");
 		log("Debug. Vigener::refused to crack");
 		throw(std::logic_error("Text is too small to crack"));
 		return;
 	}
-	key_len_ = 0;
-	key_ = "";
-	text_modified_ = "";
 
 	key_len_ = find_key_len();
 	text_modified_ = find_text();
+	if (need_spaces_) {
+		spaces_reborn();
+	}
 	
 
 	log("Debug. Vigener::cracking is completed");
@@ -85,6 +102,9 @@ void Vigener::text_to_lower() {
 		if (from_this_alphabet(tolower(text_source_[i]))) {
 			new_text_source += tolower(text_source_[i]);
 		} else {
+			if (need_spaces_) {
+				spaces_pos_.insert(i);
+			}
 			log("Warn.  Vigener::letter is not from selected alphabet");
 			log("Info.  Vigener::letter is ");
 			log(std::to_string(text_source_[i]));
@@ -101,6 +121,7 @@ bool Vigener::prepare_to_modify(const std::string & key) {
 	log("Debug. Vigener::preparing to modify");
 	key_ = "";
 	key_len_ = 0;
+	spaces_pos_.clear();
 
 	std::size_t key_len = key.length();
 	if (key_len == 0) {
@@ -181,11 +202,10 @@ std::size_t Vigener::find_key_len() {
 	std::size_t text_len = text_source_.length();
 	std::size_t prob_key_len = 1;
 	std::size_t cur_key_len = 1;
-	std::size_t max_key_len = MAX_KEY_LEN;
 	double max_prob_match_index = 0;
 
 	std::size_t * letters_count = new std::size_t[alphabet_len_];
-	while (cur_key_len <= max_key_len) {
+	while (cur_key_len <= max_key_len_) {
 		double cur_match_index = 0;
 		for (std::size_t i = 0; i < alphabet_len_; ++i) {
 			letters_count[i] = 0;
@@ -272,4 +292,24 @@ char Vigener::find_key_letter(char letter_source, char letter_modified) {
 
 Vigener::~Vigener() {
 
+}
+
+void Vigener::spaces_reborn() {
+
+	if (spaces_pos_.size() > 0) {
+		std::size_t new_text_len = text_modified_.length() + spaces_pos_.size();
+		std::size_t spaces_count = 0;
+		std::string new_text_modified = "";
+		auto end = spaces_pos_.end();
+		for (std::size_t i = 0; i < new_text_len; ++i) {
+			if (spaces_pos_.find(i) != end) {
+				new_text_modified += " ";
+				++spaces_count;
+			} else {
+				new_text_modified += text_modified_[i - spaces_count];
+			}
+		}
+
+		text_modified_ = new_text_modified;
+	}
 }
