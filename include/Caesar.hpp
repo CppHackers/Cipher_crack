@@ -10,7 +10,7 @@ class Caesar : public Cipher {
 
 public:
 
-	Caesar(char letter_first = 'a');
+	Caesar(char letter_first = 'a', unsigned log_level = Log::Debug);
 
 	void encrypt(const std::string & key) override;
 

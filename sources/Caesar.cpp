@@ -1,16 +1,16 @@
 #include"Caesar.hpp"
 
-Caesar::Caesar(char letter_first)
+Caesar::Caesar(char letter_first, unsigned log_level)
 	:
-	Cipher(),
+	Cipher(log_level),
 	key_(0),
 	letter_first_(letter_first),
 	frequency_table_(nullptr),
 	alphabet_(nullptr) {
 
-	log("Debug. Caesar::Creating Caesar");
-	log("Info.  Caesar::First letter of alphabet: ");
-	log(std::to_string(letter_first));
+	Log::Logger()->log(Log::Debug, "Caesar::Creating Caesar");
+	Log::Logger()->log(Log::Info, " Caesar::First letter of alphabet: ");
+	Log::Logger()->log(Log::Info, std::to_string(letter_first));
 	switch (letter_first_) {
 	case'a':
 		alphabet_len_ = ENGLISH_ALPHABET_LEN;
@@ -18,18 +18,21 @@ Caesar::Caesar(char letter_first)
 		alphabet_ = ENGLISH_ALPHABET;
 		break;
 	default:
-		log("Fatall. Caesar::has no this alphabet");
+		Log::Logger()->log(Log::Error, "Fatall. Caesar::has no this alphabet");
 		throw std::invalid_argument("Invalid alphabet");
 		break;
 	}
-	log("Debug. Caesar::Created");
+	Log::Logger()->log(Log::Debug, "Caesar::Created");
 
 }
 
 void Caesar::encrypt(const std::string& key) {
 
-	log("Debug. Caesar::want to encrypt");
+	Log::Logger()->log(Log::Debug, "Caesar::want to encrypt");
 	if (!prepare_to_modify(key)) {
+		Log::Logger()->log(Log::Error, "Caesar::bad key");
+		Log::Logger()->log(Log::Info, " Caesar::key is");
+		Log::Logger()->log(Log::Info, key);
 		throw std::invalid_argument("Invalid key");
 	}
 	encr();
@@ -37,7 +40,7 @@ void Caesar::encrypt(const std::string& key) {
 
 void Caesar::decrypt(const std::string& key) {
 
-	log("Debug. Caesar::want to decrypt");
+	Log::Logger()->log(Log::Debug, "Caesar::want to decrypt");
 	if (!prepare_to_modify(key)) {
 		throw std::invalid_argument("Invalid key");
 	}
@@ -46,12 +49,12 @@ void Caesar::decrypt(const std::string& key) {
 
 void Caesar::crack() {
 
-	log("Debug. Caesar::Trying to crack");
+	Log::Logger()->log(Log::Debug, "Caesar::Trying to crack");
 	text_to_lower();
 
 	if (text_source_.length() == 0) {
-		log("Warn. Caesar::text is empty to crack");
-		log("Debug. Caesar::refused to crack");
+		Log::Logger()->log(Log::Warn, "Caesar::text is empty to crack");
+		Log::Logger()->log(Log::Debug, "Caesar::refused to crack");
 		throw(std::logic_error("Text is too short"));
 		return;
 	}
@@ -89,40 +92,37 @@ void Caesar::crack() {
 	text_modified_ = "";
 	decr();
 	delete[] letters_count;
-	log("Debug. Caesar::cracking is completed");
+	Log::Logger()->log(Log::Debug, "Caesar::cracking is completed");
 }
 
 void Caesar::text_to_lower() {
 
-	log("Debug. Caesar::doing text comfortable to work with");
+	Log::Logger()->log(Log::Debug, "Caesar::doing text comfortable to work with");
 	std::string new_text_source = "";
 	std::size_t text_source_size = text_source_.length();
 	for (std::size_t i = 0; i < text_source_size; ++i) {
 		if (from_this_alphabet(tolower(text_source_[i]))) {
 			new_text_source += tolower(text_source_[i]);
 		} else {
-			log("Warn.  Caesar::letter is not from selected alphabet");
-			log("Info.  Caesar::letter is ");
-			log(std::to_string(text_source_[i]));
+			Log::Logger()->log(Log::Warn, " Caesar::letter is not from selected alphabet");
+			Log::Logger()->log(Log::Info, " Caesar::letter is ");
+			Log::Logger()->log(Log::Info, std::to_string(text_source_[i]));
 		}
 	}
 
 	text_source_ = new_text_source;
-	log("Debug. Caesar::done text comfortable");
+	Log::Logger()->log(Log::Debug, "Caesar::done text comfortable");
 
 }
 
 bool Caesar::prepare_to_modify(const std::string & key) {
 
-	log("Debug. Caesar::preparing to modify");
+	Log::Logger()->log(Log::Debug, "Caesar::preparing to modify");
 	key_ = 0;
 
 	std::istringstream sstream(key);
 	int new_key = 0;
 	if (!(sstream >> new_key) || (new_key < 0)) {
-		log("Error. Caesar::bad key");
-		log("Info.  Caesar::key is");
-		log(key);
 		return false;
 	}
 
@@ -130,7 +130,7 @@ bool Caesar::prepare_to_modify(const std::string & key) {
 
 	key_ = new_key;
 	text_modified_ = "";
-	log("Debug. Caesar::is ready to be modified");
+	Log::Logger()->log(Log::Debug, "Caesar::is ready to be modified");
 
 	return true;
 } 
@@ -148,18 +148,18 @@ bool Caesar::from_this_alphabet(char letter) const {
 
 void Caesar::encr() {
 
-	log("Debug. Caesar::tring to encrypt");
+	Log::Logger()->log(Log::Debug, "Caesar::tring to encrypt");
 	std::size_t text_source_size = text_source_.length();
 	for (std::size_t i = 0; i < text_source_size; ++i) {
 		char letter_modified = (text_source_[i] - letter_first_ + key_) % (alphabet_len_)+letter_first_;
 		text_modified_ += letter_modified;
 	}
-	log("Debug. Caesar::encrypting done");
+	Log::Logger()->log(Log::Debug, "Caesar::encrypting done");
 }
 
 void Caesar::decr() {
 
-	log("Debug. Caesar::tring to decrypt");
+	Log::Logger()->log(Log::Debug, "Caesar::tring to decrypt");
 	std::size_t text_source_size = text_source_.length();
 	for (std::size_t i = 0; i < text_source_size; ++i) {
 		int pos = (text_source_[i] - letter_first_ - key_);
@@ -169,7 +169,7 @@ void Caesar::decr() {
 		char letter_modified = pos % (alphabet_len_)+letter_first_;
 		text_modified_ += letter_modified;
 	}
-	log("Debug. Caesar::decrypting done");
+	Log::Logger()->log(Log::Debug, "Caesar::decrypting done");
 }
 
 Caesar::~Caesar() {
