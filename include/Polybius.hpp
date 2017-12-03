@@ -8,7 +8,7 @@
 class Polybius : public Cipher
 {
 public:
-    Polybius();
+    Polybius(unsigned log_level = Log::Debug);
 
     void encrypt(const std::string& key) override;
     void decrypt(const std::string& key) override;

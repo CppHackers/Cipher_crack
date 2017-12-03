@@ -4,38 +4,58 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
+#include <functional> //std::greater
 
 template<typename T>
 std::size_t find_first_index(const T* arr, std::size_t len, T value);
 
-SimpleSubstitution::SimpleSubstitution() : Cipher(),
+SimpleSubstitution::SimpleSubstitution(unsigned log_level) : Cipher(log_level),
                                            frequency_table_(ENGLISH_LETTER_FREQUENCIES),
                                            alphabet_(ENGLISH_ALPHABET),
                                            alphabet_len_(ENGLISH_ALPHABET_LEN),
                                            bigrams_freq_table_(),
                                            current_bigrams_freq_table_()
-{}
+{
+	Log::Logger()->log(Log::Debug, "SimpleSubstitution::created");
+}
 
 void SimpleSubstitution::encrypt(const std::string& key)
 {
+	Log::Logger()->log(Log::Debug, "SimpleSubstitution::trying to encrypt");
     if (check_key(key)) key_ = key;
-    else throw std::invalid_argument("Incorrect key");
+	else
+	{
+		Log::Logger()->log(Log::Error, "SimpleSubstitution::bad key");
+		Log::Logger()->log(Log::Info, "SimpleSubstitution::key is");
+		Log::Logger()->log(Log::Info, key);
+		throw std::invalid_argument("Incorrect key");
+	}
     change_text_source();
 
     for (char c : text_source_)
         text_modified_ += key[find_first_index(alphabet_, alphabet_len_, c)];
+	Log::Logger()->log(Log::Debug, "SimpleSubstitution::encrypted");
 }
 
 void SimpleSubstitution::decrypt(const std::string& key)
 {
+	Log::Logger()->log(Log::Debug, "SimpleSubstitution::trying to decrypt");
     if (check_key(key)) key_ = key;
-    else throw std::invalid_argument("Incorrect key");
+	else
+	{
+		Log::Logger()->log(Log::Error, "SimpleSubstitution::bad key");
+		Log::Logger()->log(Log::Info, "SimpleSubstitution::key is");
+		Log::Logger()->log(Log::Info, key);
+		throw std::invalid_argument("Incorrect key");
+	}
     change_text_source();
     text_modified_ = decr(key_);
+	Log::Logger()->log(Log::Debug, "SimpleSubstitution::decrypted");
 }
 
 void SimpleSubstitution::crack()
 {
+	Log::Logger()->log(Log::Debug, "SimpleSubstitution::trying to crack");
     // Primary key calculation
     std::vector<double> current_freqs_table(alphabet_len_, 0.0); // letters' frequencies of cipher text
 
@@ -116,10 +136,12 @@ void SimpleSubstitution::crack()
     }
 
     text_modified_ = decr(key);
+	Log::Logger()->log(Log::Debug, "SimpleSubstitution::cracked");
 }
 
 bool SimpleSubstitution::check_key(const std::string& key) const noexcept
 {
+	Log::Logger()->log(Log::Debug, "SimpleSubstitution::cheking key");
     for (auto i = 1; i < key.length(); ++i)
         for (auto j = 0; j < i; ++j)
             if (key[i] == key[j])
@@ -129,13 +151,21 @@ bool SimpleSubstitution::check_key(const std::string& key) const noexcept
 
 void SimpleSubstitution::change_text_source() noexcept
 {
+	Log::Logger()->log(Log::Debug, "SimpleSubstitution::chganging text to work better with");
     std::string new_text_source;
 
     for (char c : text_source_)
         if (from_this_alphabet(static_cast<char>(tolower(c))))
             new_text_source += static_cast<char>(tolower(c));
+		else
+		{
+			Log::Logger()->log(Log::Warn, "SimpleSubstitution::letter is not from this alphanet");
+			Log::Logger()->log(Log::Info, "SimpleSubstitution::letter is ");
+			Log::Logger()->log(Log::Info, std::to_string(tolower(c)));
+		}
 
     text_source_ = new_text_source;
+	Log::Logger()->log(Log::Debug, "SimpleSubstitution::success in changing text to work better with");
 }
 
 bool SimpleSubstitution::from_this_alphabet(char letter) const noexcept
@@ -156,6 +186,7 @@ std::string SimpleSubstitution::decr(const std::string& key) const noexcept
 
 void SimpleSubstitution::load_bigrams_freq() noexcept
 {
+	Log::Logger()->log(Log::Debug, "SimpleSubstitution::loading bigrams");
     std::ifstream ifs("../sources/english_bigrams.txt");
     std::string str;
 
@@ -169,10 +200,13 @@ void SimpleSubstitution::load_bigrams_freq() noexcept
     }
 
     ifs.close();
+	Log::Logger()->log(Log::Debug, "SimpleSubstitution::completed loading bigrams");
+
 }
 
 double SimpleSubstitution::count_bigrams_coefficient(const std::string& text) noexcept
 {
+	Log::Logger()->log(Log::Debug, "SimpleSubstitution::calculating bigrams coefficient");
     for (std::size_t i = 1; i < text.length(); ++i)
     {
         std::string temp = std::string(1, text[i - 1]) + std::string(1, text[i]);
@@ -193,6 +227,7 @@ double SimpleSubstitution::count_bigrams_coefficient(const std::string& text) no
             bigrams_rating += pow(current_bigram_freq.second - bigrams_freq_table_.at(current_bigram_freq.first), 2.0);
     }
 
+	Log::Logger()->log(Log::Debug, "SimpleSubstitution::completed calclulating bigrams coefficient");
     return bigrams_rating;
 }
 

@@ -3,8 +3,9 @@
 #include <sstream>
 #include <algorithm>
 #include <cmath>
+#include <functional> //std::greater
 
-Polybius::Polybius() : Cipher(),
+Polybius::Polybius(unsigned log_level) : Cipher(log_level),
                        alphabet_len_(ENGLISH_ALPHABET_LEN - 1),
                        key_(5, 5),
                        bigrams_freq_table_(),
@@ -25,11 +26,19 @@ Polybius::Polybius() : Cipher(),
         if (i == 9) j = 1;
         frequency_table_[i] = ENGLISH_LETTER_FREQUENCIES[i + j];
     }
+	Log::Logger()->log(Log::Debug, "Polibius::created");
 }
 
 void Polybius::encrypt(const std::string& key)
 {
-    if (!check_key(key)) throw std::invalid_argument("Incorrect key");
+	Log::Logger()->log(Log::Debug, "Polibius::trying to encrypt");
+	if (!check_key(key))
+	{
+		Log::Logger()->log(Log::Error, "Polibius::bad key");
+		Log::Logger()->log(Log::Info, "Polibius::key is");
+		Log::Logger()->log(Log::Info, key);
+		throw std::invalid_argument("Incorrect key");
+	}
     key_ = parse_key(key);
     change_text_source();
 
@@ -52,20 +61,30 @@ void Polybius::encrypt(const std::string& key)
         text_modified_ += alphabet_[row];
         text_modified_ += alphabet_[col];
     }
+	Log::Logger()->log(Log::Debug, "Polibius::encrypted");
 }
 
 void Polybius::decrypt(const std::string& key)
 {
-    if (!check_key(key)) throw std::invalid_argument("Incorrect key");
+	Log::Logger()->log(Log::Debug, "Polibius::trying to decrypt");
+	if (!check_key(key))
+	{
+		Log::Logger()->log(Log::Error, "Polibius::bad key");
+		Log::Logger()->log(Log::Info, "Polibius::key is");
+		Log::Logger()->log(Log::Info, key);
+		throw std::invalid_argument("Incorrect key");
+	}
     key_ = parse_key(key);
     change_text_source();
     auto length = text_source_.length() / 2;
     for (auto i = 0; i < length; ++i)
         text_modified_ += key_.matrix[text_source_[2 * i] - alphabet_[0]][text_source_[2 * i + 1] - alphabet_[0]];
+	Log::Logger()->log(Log::Debug, "Polibius::decrypted");
 }
 
 void Polybius::crack() // for english alphabet
 {
+	Log::Logger()->log(Log::Debug, "Polibius::trying to crack");
     // Primary key calculation
     std::vector<double> current_freqs_table(alphabet_len_, 0.0); // letters' frequencies of cipher text (0 - aa, 1 - ab, 2 - ac...)
 
@@ -146,6 +165,7 @@ void Polybius::crack() // for english alphabet
     }
 
     text_modified_ = decr(key);
+	Log::Logger()->log(Log::Debug, "Polibius::cracked");
 }
 
 Polybius::Key::Key(std::size_t r, std::size_t c)
@@ -159,6 +179,7 @@ Polybius::Key::Key(std::size_t r, std::size_t c)
 
 bool Polybius::check_key(const std::string& key) const noexcept
 {
+	Log::Logger()->log(Log::Debug, "Polibius::checking key");
     if (key.length() != alphabet_len_ || !from_this_alphabet(key[0]))
         return false;
 
@@ -174,25 +195,35 @@ bool Polybius::check_key(const std::string& key) const noexcept
 
 Polybius::Key Polybius::parse_key(const std::string& key) const noexcept
 {
+	Log::Logger()->log(Log::Debug, "Polibius::trying to parse key");
     Key res(5, 5);
 
     for (auto i = 0; i < res.rows; i++)
         for (auto j = 0; j < res.cols; j++)
             res.matrix[i][j] = key[i * res.rows + j];
 
+	Log::Logger()->log(Log::Debug, "Polibius::completed parsing");
     return res;
 }
 
 void Polybius::change_text_source() noexcept
 {
+	Log::Logger()->log(Log::Debug, "Polibius::trying to change text to work better with");
     std::string new_text_source;
 
     for (char c : text_source_)
         if (from_this_alphabet((char)tolower(c)))
             new_text_source += (char)tolower(c);
         else if (tolower(c) == 'j') new_text_source += 'i';
+			else 
+			{
+				Log::Logger()->log(Log::Warn, "Polibius::letter is not from this alphabet");
+				Log::Logger()->log(Log::Info, "Polibius::letter is");
+				Log::Logger()->log(Log::Info, std::to_string(tolower(c)));
+			}
 
     text_source_ = new_text_source;
+	Log::Logger()->log(Log::Debug, "Polibius::completed changing text to work better with");
 }
 
 bool Polybius::from_this_alphabet(char letter) const noexcept
@@ -215,6 +246,7 @@ std::string Polybius::decr(const std::string& key) const noexcept
 
 void Polybius::load_bigrams_freq() noexcept
 {
+	Log::Logger()->log(Log::Debug, "Polibius::loading bigrams");
     std::ifstream ifs("../sources/english_bigrams.txt");
     std::string str;
 
@@ -232,10 +264,12 @@ void Polybius::load_bigrams_freq() noexcept
     }
 
     ifs.close();
+	Log::Logger()->log(Log::Debug, "Polibius::completed loading bigrams");
 }
 
 double Polybius::count_bigrams_coefficient(const std::string& text) noexcept
 {
+	Log::Logger()->log(Log::Debug, "Polibius::calculation of bigrams coefficient");
     for (std::size_t i = 1; i < text.length(); ++i)
     {
         std::string temp = std::string(1, text[i - 1]) + std::string(1, text[i]);
@@ -256,5 +290,6 @@ double Polybius::count_bigrams_coefficient(const std::string& text) noexcept
             bigrams_rating += pow(current_bigram_freq.second - bigrams_freq_table_.at(current_bigram_freq.first), 2.0);
     }
 
+	Log::Logger()->log(Log::Debug, "Polibius::completed calculation of bigrams coefficient");
     return bigrams_rating;
 }
