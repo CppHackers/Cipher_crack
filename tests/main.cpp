@@ -1,2 +1,2 @@
-
-//SCENARIO("chiper is good")...
+#define CATCH_CONFIG_MAIN
+#include "catch.hpp"

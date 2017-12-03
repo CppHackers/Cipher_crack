@@ -1,3 +1,7 @@
+# Cipher_crack
+
+[![Build Status](https://travis-ci.org/CppHackers/Cipher_crack.svg?branch=master)](https://travis-ci.org/CppHackers/Cipher_crack)
+
 ## Исследование шифров методами криптоанализа
 
 ## Классические​​ шифры:
