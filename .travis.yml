@@ -9,7 +9,7 @@ matrix:
           packages:
             - g++-5
             - cmake
-            - boost
+            - libboost-all-dev
           sources: &sources
             - llvm-toolchain-precise
             - ubuntu-toolchain-r-test
