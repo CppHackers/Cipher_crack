@@ -1,31 +1,58 @@
-## Исследование шифров методами криптоанализа
+# Cipher_crack
 
-## Классические​​ шифры:
+[![Build Status](https://travis-ci.org/CppHackers/Cipher_crack.svg?branch=master)](https://travis-ci.org/CppHackers/Cipher_crack)
 
-а) Шифр​​ Цезаря
+## What's the Cipher_crack
 
-б) Афинный​​ шифр
+It's a program that can encrypt, decrypt and crack texts using cryptanalysis.
 
-в) Шифр​​ простой​​ замены
+### Ciphers used:
 
-г) Шифр​​ Полибия
+1) Caesar cipher
 
-д) Шифр​​ вертикальной​​ перестановки
+2) Affine cipher
 
-е) Шифр​​ Плейфера
+3) Simple substitution cipher
 
-ё) Шифр​​ Виженера
+4) Polybius cipher
 
-## Методы криптоанализа
+5) Vigenere cipher
 
-а) брутфорс​​
+### Сryptanalysis methods used:
 
-б) частотный​​ анализ​​ букв​​
+1) Brute force
 
-в) частотный​​ анализ​​ n-грамм​​
+2) Frequency analysis of letters
 
-г) поиск​​ восхождением​​ к​​ вершине​​
+3) Frequency analysis of n-grams
 
-д) иммитация​​ отжига​​
+4) 'Hill-climbing' algorithm
 
-е) и​​ др..
+5) Accounting for the index of coincidence
+
+## Build
+
+```ShellSession
+$ git clone https://github.com/CppHackers/Cipher_crack
+$ cd Cipher_crack
+$ mkdir build && cd build
+$ cmake .. && make
+```
+
+## Running tests
+
+```ShellSession
+$ ./Tests
+```
+
+## How to use it
+
+```ShellSession
+$ ./Cipher_crack [general options] [cipher options] [encrypt/decrypt/crack options]
+```
+
+## More
+
+```ShellSession
+$ ./Cipher_crack -h
+```
