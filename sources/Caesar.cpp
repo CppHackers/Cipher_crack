@@ -1,12 +1,14 @@
 #include"Caesar.hpp"
 
-Caesar::Caesar(char letter_first, unsigned log_level)
+Caesar::Caesar(char letter_first, bool need_spaces, unsigned log_level, unsigned top)
 	:
 	Cipher(log_level),
 	key_(0),
 	letter_first_(letter_first),
 	frequency_table_(nullptr),
-	alphabet_(nullptr) {
+	alphabet_(nullptr),
+	need_spaces_(need_spaces),
+	top_(top) {
 
 	Log::Logger()->log(Log::Debug, "Caesar::Creating Caesar");
 	Log::Logger()->log(Log::Info, " Caesar::First letter of alphabet: ");
@@ -22,6 +24,8 @@ Caesar::Caesar(char letter_first, unsigned log_level)
 		throw std::invalid_argument("Invalid alphabet");
 		break;
 	}
+	
+	letters_count_ = new std::size_t[alphabet_len_];
 	Log::Logger()->log(Log::Debug, "Caesar::Created");
 
 }
@@ -36,6 +40,9 @@ void Caesar::encrypt(const std::string& key) {
 		throw std::invalid_argument("Invalid key");
 	}
 	encr();
+	if (need_spaces_) {
+		text_modified_ = spaces_reborn(text_modified_);
+	}
 }
 
 void Caesar::decrypt(const std::string& key) {
@@ -45,11 +52,19 @@ void Caesar::decrypt(const std::string& key) {
 		throw std::invalid_argument("Invalid key");
 	}
 	decr();
+	if (need_spaces_) {
+		text_modified_ = spaces_reborn(text_modified_);
+	}
 }
 
 void Caesar::crack() {
 
 	Log::Logger()->log(Log::Debug, "Caesar::Trying to crack");
+	if (top_) {
+		top_vector_.clear();
+		top_vector_.assign((top_ < alphabet_len_) ? top_ : alphabet_len_, decryptod<int>());
+	}
+	spaces_pos_.clear();
 	text_to_lower();
 
 	if (text_source_.length() == 0) {
@@ -61,7 +76,7 @@ void Caesar::crack() {
 	float max_probability = 0;
 	int cur_key = 1;
 	int max_probability_key = 1;
-	std::size_t * letters_count = new std::size_t[alphabet_len_];
+	
 
 	while (cur_key < alphabet_len_) {
 
@@ -70,16 +85,19 @@ void Caesar::crack() {
 		decr();
 
 		for (std::size_t i = 0; i < alphabet_len_; ++i) {
-			letters_count[i] = 0;
+			letters_count_[i] = 0;
 		}
 		std::size_t max_letters = text_modified_.length();
 		for (std::size_t i = 0; i < max_letters; ++i) {
-			letters_count[text_modified_[i] - letter_first_] += 1;
+			letters_count_[text_modified_[i] - letter_first_] += 1;
 		}
 
 		double cur_probability = 0;
 		for (std::size_t i = 0; i < alphabet_len_; ++i) {
-			cur_probability += ((letters_count[i] * 1.0) / max_letters )  * (frequency_table_[i] / 100);
+			cur_probability += ((letters_count_[i] * 1.0) / max_letters )  * (frequency_table_[i] / 100);
+		}
+		if (top_) {
+			add_decryptod({ text_modified_, cur_key, cur_probability });
 		}
 		if (cur_probability > max_probability) {
 			max_probability = cur_probability;
@@ -91,7 +109,9 @@ void Caesar::crack() {
 	key_ = max_probability_key;
 	text_modified_ = "";
 	decr();
-	delete[] letters_count;
+	if (need_spaces_) {
+		text_modified_ = spaces_reborn(text_modified_);
+	}
 	Log::Logger()->log(Log::Debug, "Caesar::cracking is completed");
 }
 
@@ -104,6 +124,9 @@ void Caesar::text_to_lower() {
 		if (from_this_alphabet(tolower(text_source_[i]))) {
 			new_text_source += tolower(text_source_[i]);
 		} else {
+			if (need_spaces_) {
+				spaces_pos_.insert(i);
+			}
 			Log::Logger()->log(Log::Warn, " Caesar::letter is not from selected alphabet");
 			Log::Logger()->log(Log::Info, " Caesar::letter is ");
 			Log::Logger()->log(Log::Info, std::to_string(text_source_[i]));
@@ -119,6 +142,7 @@ bool Caesar::prepare_to_modify(const std::string & key) {
 
 	Log::Logger()->log(Log::Debug, "Caesar::preparing to modify");
 	key_ = 0;
+	spaces_pos_.clear();
 
 	std::istringstream sstream(key);
 	int new_key = 0;
@@ -177,5 +201,102 @@ void Caesar::decr() {
 }
 
 Caesar::~Caesar() {
-
+	delete[] letters_count_;
 }
+
+std::string Caesar::spaces_reborn(std::string const & text_modified) {
+
+	Log::Logger()->log(Log::Debug, "Caesar::trying to reborn spaces");
+	if (spaces_pos_.size() > 0) {
+		std::size_t new_text_len = text_modified.length() + spaces_pos_.size();
+		std::size_t spaces_count = 0;
+		std::string new_text_modified = "";
+		auto end = spaces_pos_.end();
+		for (std::size_t i = 0; i < new_text_len; ++i) {
+			if (spaces_pos_.find(i) != end) {
+				new_text_modified += " ";
+				++spaces_count;
+			} else {
+				new_text_modified += text_modified[i - spaces_count];
+			}
+		}
+		Log::Logger()->log(Log::Debug, "Caesar::complete spaces reborn");
+		return new_text_modified;
+	}
+
+	Log::Logger()->log(Log::Debug, "Caesar::complete spaces reborn, but don't find it");
+	return text_modified;
+}
+
+void Caesar::change_spaces_mode() {
+
+	need_spaces_ = !need_spaces_;
+}
+
+void Caesar::add_decryptod(decryptod<int> decr) {
+
+	std::size_t top_len = top_vector_.size(); // or (top_ < alphabet_len) ? top_ : alphabet_len_
+	bool find_place = false;
+	for (std::size_t i = 0; i < top_len; ++i) {
+		if (top_vector_[i].factor_ < decr.factor_) {
+			find_place = true;
+		}
+		if (find_place) {
+			decryptod<int> old_decr = top_vector_[i];
+			top_vector_[i] = decr;
+			decr = old_decr;
+		}
+	}
+}
+
+std::vector<decryptod<int>> Caesar::get_top() {
+
+	return top_vector_;
+}
+
+//+out
+
+std::ostream & Caesar::top_out(std::ostream & out) {
+
+	if (!top_) {
+		return out;
+	}
+
+	std::size_t top_len = top_vector_.size(); // top_ or alphabet_len_
+	for (std::size_t i = top_len; i > 0; --i) {
+
+		if (need_spaces_) {
+			top_vector_[i - 1].text_ = spaces_reborn(top_vector_[i - 1].text_);
+		}
+
+		out << i << ".\n";
+		out << "Text:\n" << top_vector_[i - 1].text_ << "\n";
+		out << "Key: " << top_vector_[i - 1].key_ << "\n";
+		out << "Factor: " << top_vector_[i - 1].factor_ << "\n\n";
+	}
+
+	return out;
+}
+
+std::ofstream & Caesar::top_out(std::ofstream & out) {
+
+	if (!top_) {
+		return out;
+	}
+
+	std::size_t top_len = top_vector_.size(); // top_ or alphabet_len_
+	for (std::size_t i = 0; i < top_len; ++i) {
+
+		if (need_spaces_) {
+			top_vector_[i].text_ = spaces_reborn(top_vector_[i].text_);
+		}
+
+		out << i + 1 << ".\n";
+		out << "Text:\n" << top_vector_[i].text_ << "\n";
+		out << "Key: " << top_vector_[i].key_ << "\n";
+		out << "Factor: " << top_vector_[i].factor_ << "\n\n";
+	}
+
+	return out;
+}
+
