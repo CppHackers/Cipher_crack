@@ -60,8 +60,8 @@ private:
 		std::size_t top_key, std::size_t top_key_len, std::size_t cur_key_len,
 		decryptod_Vigener_mod & cur_decr, std::size_t deep);
 	char find_key_letter(char letter_source, char letter_modified);
-	void Vigener::add_decryptod(decryptod_Vigener_mod & decr_V_m, decryptod<std::string> decr_C);
-	double Vigener::calc_factor(std::string const & text);
+	void add_decryptod(decryptod_Vigener_mod & decr_V_m, decryptod<std::string> decr_C);
+	double calc_factor(std::string const & text);
 };
 
 #endif // !VIGENER_HPP
