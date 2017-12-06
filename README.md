@@ -54,5 +54,9 @@ $ ./Cipher_crack [general options] [cipher options] [encrypt/decrypt/crack optio
 ## More
 
 ```ShellSession
+$ ./Cipher_crack --help
+```
+or
+```ShellSession
 $ ./Cipher_crack -h
 ```
