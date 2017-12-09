@@ -30,33 +30,35 @@ It's a program that can encrypt, decrypt and crack texts using cryptanalysis.
 
 5) Accounting for the index of coincidence
 
-## Build
+## Build requirements
+
+Before installing the program, check that `cmake` and `libboost-all-dev` packets are installed.
+
+## Install
 
 ```ShellSession
 $ git clone https://github.com/CppHackers/Cipher_crack
 $ cd Cipher_crack
-$ mkdir build && cd build
-$ cmake .. && make
-```
-
-## Running tests
-
-```ShellSession
-$ ./Tests
+$ 
+$ ./install.sh
 ```
 
 ## How to use it
 
 ```ShellSession
-$ ./Cipher_crack [general options] [cipher options] [encrypt/decrypt/crack options]
+$ crack [general options] [cipher options] [encrypt/decrypt/crack options]
 ```
 
 ## More
 
 ```ShellSession
-$ ./Cipher_crack --help
+$ man crack
 ```
 or
 ```ShellSession
-$ ./Cipher_crack -h
+$ crack --help
+```
+or
+```ShellSession
+$ crack -h
 ```

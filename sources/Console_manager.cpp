@@ -36,7 +36,7 @@ void Console_manager::parse_command_args(int argc, char** argv)
     ciphers_desc.add_options()
             ("Caesar,C", "Caesar cipher")
             ("Affine,A", "Affine cipher")
-            ("Vigener,V", "Vigener cipher")
+            ("Vigenere,V", "Vigenere cipher")
             ("SimpleSub,S", "Simple substitution cipher")
             ("Polybius,P", "Polybius cipher")
             ;
@@ -114,7 +114,7 @@ bool Console_manager::initialize_cipher()
         cipher_ = new Affine;
         return true;
     }
-    else if (var_map_.count("Vigener"))
+    else if (var_map_.count("Vigenere"))
     {
         cipher_ = new Vigener;
         return true;
