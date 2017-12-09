@@ -39,7 +39,6 @@ Before installing the program, check that `cmake` and `libboost-all-dev` packets
 ```ShellSession
 $ git clone https://github.com/CppHackers/Cipher_crack
 $ cd Cipher_crack
-$ 
 $ ./install.sh
 ```
 
