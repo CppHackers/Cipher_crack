@@ -276,11 +276,18 @@ std::string Vigener::find_text() {
 
 	std::string text_modified = "";
 	std::size_t max_text_part_len = text_len / key_len_ + (((text_len % key_len_) != 0) ? 1 : 0);
+	std::size_t count_letters = 0;
 	for (std::size_t i = 0; i < max_text_part_len; ++i) {
 		for (std::size_t j = 0; j < key_len_; ++j) {
+			/*
 			if (text_parts[j].length() < i) {
 				break;
 			}
+			*/
+			if (count_letters == text_len) {
+				break;
+			}
+			++count_letters;
 			text_modified += text_parts[j][i];
 		}
 	}
@@ -385,11 +392,18 @@ void Vigener::find_optimal_top(std::vector<std::size_t> & indexes, std::vector<s
 			text_parts[i] = source_variant[i][indexes[i]].text_;
 			key += find_key_letter(letters_source[i], text_parts[i][0]); // ?
 		}
+		std::size_t count_letters = 0;
 		for (std::size_t i = 0; i < max_text_part_len; ++i) {
 			for (std::size_t j = 0; j < cur_key_len; ++j) {
+				/*
 				if (text_parts[j].length() < i) {
 					break;
 				}
+				*/
+				if (count_letters == text_len) {
+					break;
+				}
+				++count_letters;
 				text_modified += text_parts[j][i];
 			}
 		}
