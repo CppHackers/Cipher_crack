@@ -72,8 +72,8 @@ void Console_manager::parse_command_args(int argc, char** argv)
 
     if (!initialize_cipher())
     {
-        std::cout << "\nUsage: ./Cipher_crack [general options] [cipher options] [encrypt/decrypt/crack options]\n"
-                "Run \"./Cipher_crack -h\" for more detailed information.\n\n";
+        std::cout << "\nUsage: crack [general options] [cipher options] [encrypt/decrypt/crack options]\n"
+                "Run \"crack -h\" for more detailed information.\n\n";
         return;
     }
 
@@ -97,8 +97,8 @@ void Console_manager::parse_command_args(int argc, char** argv)
     }
     else
     {
-        std::cout << "\nUsage: ./Cipher_crack [general options] [cipher options] [encrypt/decrypt/crack options]\n"
-                "Run \"./Cipher_crack -h\" for more detailed information.\n\n";
+        std::cout << "\nUsage: crack [general options] [cipher options] [encrypt/decrypt/crack options]\n"
+                "Run \"crack -h\" for more detailed information.\n\n";
     }
 }
 
